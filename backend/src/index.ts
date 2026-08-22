@@ -40,9 +40,9 @@ if (process.env.VERCEL) {
     process.exit(1);
   }
 
-  server.listen(config.port, "0.0.0.0", async () => {
-    await bootstrap();
+  server.listen(config.port, "0.0.0.0", () => {
     console.log(`Nurov API → http://0.0.0.0:${config.port}`);
+    void bootstrap();
   });
 
   async function shutdown() {
