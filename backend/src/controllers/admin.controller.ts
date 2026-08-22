@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 import { AuthedRequest } from "../middleware/auth";
 import { notify } from "../lib/notify";
 import { publicUser, routeParam } from "../utils/helpers";
+import { ilike } from "../lib/search";
 
 export async function adminDashboard(_req: AuthedRequest, res: Response) {
   const [users, sellers, products, orders, pendingSellers, pendingProducts] = await Promise.all([
@@ -36,10 +37,10 @@ export async function adminUsers(req: AuthedRequest, res: Response) {
     where: q
       ? {
           OR: [
-            { email: { contains: q } },
-            { firstName: { contains: q } },
-            { lastName: { contains: q } },
-            { phone: { contains: q } },
+            { email: ilike(q) },
+            { firstName: ilike(q) },
+            { lastName: ilike(q) },
+            { phone: ilike(q) },
           ],
         }
       : undefined,
@@ -151,7 +152,7 @@ export async function adminProducts(req: AuthedRequest, res: Response) {
   const q = String(req.query.q || "");
   const where: Prisma.ProductWhereInput = {};
   if (status) where.moderationStatus = status as never;
-  if (q) where.name = { contains: q };
+  if (q) where.name = ilike(q);
   const items = await prisma.product.findMany({
     where,
     include: {

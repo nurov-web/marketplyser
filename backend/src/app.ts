@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import path from "path";
 import { config } from "./config";
+import { isAllowedOrigin } from "./lib/origins";
 import { rateLimit } from "./middleware/rateLimit";
 import { errorHandler, notFound } from "./middleware/error";
 import { ah } from "./utils/asyncHandler";
@@ -28,7 +29,7 @@ export function createApp() {
   app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
   app.use(
     cors({
-      origin: true,
+      origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
       credentials: true,
     })
   );

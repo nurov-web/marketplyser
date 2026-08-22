@@ -1,3 +1,5 @@
+# Локалӣ: docker compose up -d postgres
+# Production: Neon + Railway, ин файл лозим нест.
 services:
   postgres:
     image: postgres:16-alpine

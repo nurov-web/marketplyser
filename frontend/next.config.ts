@@ -9,8 +9,14 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "http", hostname: "localhost" },
       { protocol: "https", hostname: "*.trycloudflare.com" },
+      { protocol: "https", hostname: "*.up.railway.app" },
+      { protocol: "https", hostname: "*.onrender.com" },
+      { protocol: "https", hostname: "*.fly.dev" },
+      { protocol: "https", hostname: "*.koyeb.app" },
+      { protocol: "https", hostname: "*.vercel.app" },
     ],
   },
   async rewrites() {

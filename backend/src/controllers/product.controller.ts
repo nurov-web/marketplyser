@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { AuthedRequest } from "../middleware/auth";
 import { finalPrice, routeParam, slugify, toNum } from "../utils/helpers";
+import { ilike } from "../lib/search";
 
 let homeCache: { at: number; data: unknown } | null = null;
 
@@ -59,9 +60,9 @@ export async function listProducts(req: AuthedRequest, res: Response) {
 
   if (q) {
     where.OR = [
-      { name: { contains: q } },
-      { description: { contains: q } },
-      { brand: { contains: q } },
+      { name: ilike(q) },
+      { description: ilike(q) },
+      { brand: ilike(q) },
     ];
   }
   if (category) {
@@ -70,9 +71,9 @@ export async function listProducts(req: AuthedRequest, res: Response) {
       q
         ? {
             OR: [
-              { name: { contains: q } },
-              { description: { contains: q } },
-              { brand: { contains: q } },
+              { name: ilike(q) },
+              { description: ilike(q) },
+              { brand: ilike(q) },
             ],
           }
         : {},
@@ -81,7 +82,7 @@ export async function listProducts(req: AuthedRequest, res: Response) {
       },
     ];
   }
-  if (brand) where.brand = { contains: brand };
+  if (brand) where.brand = ilike(brand);
   if (seller) where.sellerId = seller;
   if (minPrice != null || maxPrice != null) {
     where.price = {};
@@ -320,7 +321,7 @@ export async function suggestProducts(req: AuthedRequest, res: Response) {
     where: {
       moderationStatus: "APPROVED",
       stock: { gt: 0 },
-      OR: [{ name: { contains: q } }, { brand: { contains: q } }, { category: { name: { contains: q } } }],
+      OR: [{ name: ilike(q) }, { brand: ilike(q) }, { category: { name: ilike(q) } }],
     },
     include: { images: { take: 1, orderBy: { sortOrder: "asc" } }, category: true },
     take: 8,

@@ -6,7 +6,7 @@
 
 - Frontend: Next.js 15, TypeScript, Tailwind CSS, Framer Motion
 - Backend: Node.js, Express, TypeScript, JWT, Socket.io
-- Database: SQLite (локалӣ) / PostgreSQL (production) + Prisma
+- Database: PostgreSQL (Neon дар production, Docker ё Neon дар локалӣ) + Prisma
 - Redis: rate limit (бо fallback дар хотира)
 - Расмҳо: `uploads/` локалӣ ё Cloudinary
 
@@ -14,12 +14,13 @@
 
 ### 1. Backend
 
-Барои development SQLite истифода мешавад (бе Docker). `docker-compose.yml` барои PostgreSQL/Redis низ ҳаст.
+PostgreSQL лозим аст. Роҳи осон: `docker compose up -d postgres`. Ё URL-и Neon-ро ба `DATABASE_URL` ва `DIRECT_URL` гузоред.
 
 ```bash
 cd backend
+# .env-ро аз .env.example нусха кунед
 npm install
-npx prisma migrate dev --name init
+npx prisma migrate deploy
 npx prisma db seed
 npm run dev
 ```
@@ -56,6 +57,6 @@ Cash on Delivery пурра кор мекунад. Card / Online — sandbox (б
 
 ## Deploy
 
-- Frontend: Vercel (`NEXT_PUBLIC_API_URL` ба URL-и backend)
-- Backend: Render/Railway (`DATABASE_URL`, `JWT_*`, `FRONTEND_URL`)
-- Database: PostgreSQL managed
+**Тавсия ҳозир:** як сервер (frontend + backend), база Neon. Дастур: **[DEPLOY-ONE-SERVER.md](./DEPLOY-ONE-SERVER.md)**
+
+Алоҳида ҳам мумкин: **[DEPLOY.md](./DEPLOY.md)** — Vercel + Railway + Neon.

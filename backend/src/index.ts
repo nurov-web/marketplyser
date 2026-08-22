@@ -1,14 +1,9 @@
 import http from "http";
-import { config } from "./config";
+import { assertProductionSecrets, config } from "./config";
 import { createApp } from "./app";
 import { initSocket } from "./socket";
 import { prisma } from "./lib/prisma";
-
-import http from "http";
-import { config } from "./config";
-import { createApp } from "./app";
-import { initSocket } from "./socket";
-import { prisma } from "./lib/prisma";
+import { ensureBootstrapUsers } from "./bootstrap";
 
 async function ensureCoupons() {
   const count = await prisma.coupon.count();
@@ -24,17 +19,37 @@ async function ensureCoupons() {
   });
 }
 
+async function bootstrap() {
+  await ensureBootstrapUsers().catch((e) => console.error("user bootstrap failed", e));
+  await ensureCoupons().catch((e) => console.error("coupon bootstrap failed", e));
+}
+
 const app = createApp();
 const server = http.createServer(app);
 initSocket(server);
 
-server.listen(config.port, async () => {
-  await ensureCoupons().catch(() => {});
-  console.log(`Nurov API → http://localhost:${config.port}`);
-});
+export default app;
 
-process.on("SIGINT", async () => {
-  await prisma.$disconnect();
-  server.close();
-  process.exit(0);
-});
+if (process.env.VERCEL) {
+  void bootstrap();
+} else {
+  try {
+    assertProductionSecrets();
+  } catch (err) {
+    console.error((err as Error).message);
+    process.exit(1);
+  }
+
+  server.listen(config.port, "0.0.0.0", async () => {
+    await bootstrap();
+    console.log(`Nurov API → http://0.0.0.0:${config.port}`);
+  });
+
+  async function shutdown() {
+    await prisma.$disconnect();
+    server.close(() => process.exit(0));
+  }
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
+}

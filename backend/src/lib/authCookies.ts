@@ -1,19 +1,24 @@
-import { Response } from "express";
+import { CookieOptions, Response } from "express";
 import { config } from "../config";
 
-const cookieOpts = {
-  httpOnly: true,
-  sameSite: "lax" as const,
-  secure: config.nodeEnv === "production",
-  path: "/",
-};
+function cookieOpts(): CookieOptions {
+  const crossSite = config.cookieSameSite === "none";
+  return {
+    httpOnly: true,
+    sameSite: crossSite ? "none" : "lax",
+    secure: config.nodeEnv === "production" || crossSite,
+    path: "/",
+  };
+}
 
 export function setAuthCookies(res: Response, access: string, refresh: string) {
-  res.cookie("accessToken", access, { ...cookieOpts, maxAge: 7 * 24 * 60 * 60 * 1000 });
-  res.cookie("refreshToken", refresh, { ...cookieOpts, maxAge: 7 * 24 * 60 * 60 * 1000 });
+  const opts = cookieOpts();
+  res.cookie("accessToken", access, { ...opts, maxAge: 7 * 24 * 60 * 60 * 1000 });
+  res.cookie("refreshToken", refresh, { ...opts, maxAge: 7 * 24 * 60 * 60 * 1000 });
 }
 
 export function clearAuthCookies(res: Response) {
-  res.clearCookie("accessToken", { path: "/" });
-  res.clearCookie("refreshToken", { path: "/" });
+  const opts = cookieOpts();
+  res.clearCookie("accessToken", opts);
+  res.clearCookie("refreshToken", opts);
 }

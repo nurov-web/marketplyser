@@ -10,4 +10,6 @@ uploads/*
 coverage
 *.db
 *.db-journal
+.vercel
+*.tsbuildinfo
 

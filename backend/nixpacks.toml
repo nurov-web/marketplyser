@@ -1,0 +1,9 @@
+[variables]
+NIXPACKS_NODE_VERSION = "20"
+NPM_CONFIG_PRODUCTION = "false"
+
+[phases.setup]
+nixPkgs = ["openssl"]
+
+[start]
+cmd = "npx prisma migrate deploy && node dist/index.js"
