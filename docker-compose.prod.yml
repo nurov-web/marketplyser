@@ -1,7 +1,9 @@
 # Як контейнер: frontend + backend. База дар Neon мемонад.
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.all-in-one
     ports:
       - "3000:3000"
     environment:
