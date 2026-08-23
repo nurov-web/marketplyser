@@ -20,16 +20,16 @@ import { Icon } from "@/components/ui/Icon";
 import { StrokeText } from "@/components/motion/StrokeText";
 
 const items = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/sellers", label: "Sellers", icon: Store },
-  { href: "/admin/products", label: "Products", icon: Package },
-  { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
-  { href: "/admin/categories", label: "Categories", icon: FolderTree },
-  { href: "/admin/reviews", label: "Reviews", icon: MessageSquareWarning },
-  { href: "/admin/reports", label: "Reports", icon: Wallet },
+  { href: "/admin", label: "Омор", icon: LayoutDashboard },
+  { href: "/admin/products", label: "Молҳо", icon: Package },
+  { href: "/admin/categories", label: "Категорияҳо", icon: FolderTree },
+  { href: "/admin/orders", label: "Фармоишҳо", icon: ShoppingBag },
+  { href: "/admin/users", label: "Корбарон", icon: Users },
+  { href: "/admin/sellers", label: "Фурӯшандагон", icon: Store },
+  { href: "/admin/reviews", label: "Баррасиҳо", icon: MessageSquareWarning },
+  { href: "/admin/reports", label: "Шикоятҳо", icon: Wallet },
   { href: "/admin/crm", label: "CRM Bitrix", icon: Shield },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+  { href: "/admin/settings", label: "Танзимот", icon: Settings },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -58,7 +58,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         <nav className="px-3 pb-6">
           {items.map((i) => {
-            const active = pathname === i.href;
+            const active = i.href === "/admin" ? pathname === "/admin" : pathname.startsWith(i.href);
             return (
               <Link
                 key={i.href}
@@ -81,7 +81,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               key={i.href}
               href={i.href}
               className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-semibold ${
-                pathname === i.href ? "bg-primary text-white" : "bg-white text-ink shadow-soft"
+                (i.href === "/admin" ? pathname === "/admin" : pathname.startsWith(i.href))
+                  ? "bg-primary text-white"
+                  : "bg-white text-ink shadow-soft"
               }`}
             >
               {i.label}

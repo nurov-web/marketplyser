@@ -25,21 +25,22 @@ async function bootstrap() {
 }
 
 const app = createApp();
-const server = http.createServer(app);
-initSocket(server);
-
 export default app;
 
-if (process.env.VERCEL) {
-  void bootstrap();
-} else {
-  try {
-    assertProductionSecrets();
-  } catch (err) {
-    console.error((err as Error).message);
-    process.exit(1);
-  }
+try {
+  assertProductionSecrets();
+} catch (err) {
+  console.error((err as Error).message);
+  if (!process.env.VERCEL) process.exit(1);
+}
 
+const isVercelBuild = Boolean(process.env.VERCEL && process.env.CI);
+
+if (process.env.VERCEL) {
+  if (!isVercelBuild) void bootstrap();
+} else {
+  const server = http.createServer(app);
+  initSocket(server);
   server.listen(config.port, "0.0.0.0", () => {
     console.log(`Nurov API → http://0.0.0.0:${config.port}`);
     void bootstrap();

@@ -1,21 +1,20 @@
 {
   "services": {
     "frontend": {
-      "root": "frontend",
+      "root": "frontend/",
       "framework": "nextjs"
     },
     "backend": {
-      "root": "backend",
+      "root": "backend/",
       "framework": "express",
       "entrypoint": "src/index.ts",
-      "buildCommand": "npx prisma generate && npx prisma migrate deploy"
+      "buildCommand": "npx prisma generate"
     }
   },
   "rewrites": [
     { "source": "/api", "destination": { "service": "backend" } },
     { "source": "/api/(.*)", "destination": { "service": "backend" } },
     { "source": "/uploads/(.*)", "destination": { "service": "backend" } },
-    { "source": "/socket.io/(.*)", "destination": { "service": "backend" } },
     { "source": "/(.*)", "destination": { "service": "frontend" } }
   ]
 }

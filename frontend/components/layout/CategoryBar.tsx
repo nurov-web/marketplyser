@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
-import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import {
   Cpu,
   Footprints,
@@ -55,7 +54,6 @@ const COLORS = [
 export function CategoryBar({ cats }: { cats: Category[] }) {
   const params = useSearchParams();
   const active = params.get("category");
-  const reduce = useReducedMotion();
   const [moreOpen, setMoreOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -84,45 +82,19 @@ export function CategoryBar({ cats }: { cats: Category[] }) {
   return (
     <nav className="relative border-t border-border/70 bg-white" aria-label="Категорияҳо">
       <div className="container-n relative">
-        <LayoutGroup>
-          <motion.div
-            className="no-scrollbar flex gap-2 overflow-x-auto py-2.5 pr-14"
-            initial={reduce ? false : "hidden"}
-            animate="show"
-            variants={{
-              hidden: {},
-              show: { transition: { staggerChildren: 0.04 } },
-            }}
-          >
+        <div className="no-scrollbar flex gap-2 overflow-x-auto py-2.5 pr-14">
             {cats.map((c, i) => {
               const selected = active === c.slug;
               const Lucide = ICONS[c.slug] || LayoutGrid;
               return (
-                <motion.div
-                  key={c.id}
-                  variants={
-                    reduce
-                      ? undefined
-                      : {
-                          hidden: { opacity: 0, y: 8 },
-                          show: { opacity: 1, y: 0, transition: { duration: 0.25 } },
-                        }
-                  }
-                >
                   <Link
+                    key={c.id}
                     href={`/search?category=${c.slug}`}
                     aria-current={selected ? "page" : undefined}
-                    className={`relative flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${
-                      selected ? "text-white shadow-lg shadow-primary/30" : "text-slate-600 hover:bg-slate-50 hover:text-ink"
+                    className={`relative flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold ${
+                      selected ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-ink"
                     }`}
                   >
-                    {selected && (
-                      <motion.span
-                        layoutId="cat-pill"
-                        className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-primary to-sky-500"
-                        transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 30 }}
-                      />
-                    )}
                     <span
                       className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full ${
                         selected ? "bg-white/20 text-white" : COLORS[i % COLORS.length]
@@ -132,11 +104,9 @@ export function CategoryBar({ cats }: { cats: Category[] }) {
                     </span>
                     <span className="relative z-10">{c.name}</span>
                   </Link>
-                </motion.div>
               );
             })}
-          </motion.div>
-        </LayoutGroup>
+          </div>
 
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent" />
         <button

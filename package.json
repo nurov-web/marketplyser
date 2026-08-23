@@ -5,7 +5,9 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "npm --prefix backend install --include=dev && npm --prefix backend run build && npm --prefix backend run prisma:deploy",
-    "start": "node backend/dist/index.js"
+    "build": "npm --prefix backend install --include=dev && npm --prefix backend run build && npm --prefix frontend install && npm --prefix frontend run build",
+    "start": "node scripts/start-all.mjs",
+    "start:api": "node backend/dist/index.js",
+    "migrate": "npm --prefix backend run prisma:deploy"
   }
 }

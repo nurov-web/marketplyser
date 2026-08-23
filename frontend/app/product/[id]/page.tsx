@@ -160,7 +160,7 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="container-n py-8">
+    <div className="container-n py-8 pb-28 md:pb-8">
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
         <div>
           <div className="relative overflow-hidden rounded-2xl bg-white shadow-soft">
@@ -475,6 +475,26 @@ export default function ProductPage() {
           </div>
         </section>
       )}
+
+      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border bg-white/95 px-4 py-2.5 shadow-lift backdrop-blur-xl md:hidden">
+        <div className="flex items-center gap-3">
+          <div className="min-w-0">
+            <p className="text-lg font-bold tabular-nums leading-tight">{money(p.finalPrice)}</p>
+            {p.discount > 0 && (
+              <p className="text-xs text-muted-foreground line-through tabular-nums">{money(p.price)}</p>
+            )}
+          </div>
+          <button
+            type="button"
+            className="btn-primary min-h-12 flex-1"
+            disabled={!!busy || outOfStock}
+            onClick={() => addCart(false)}
+          >
+            {busy === "cart" ? <Icon icon={Loader2} className="h-4 w-4 animate-spin" aria-hidden /> : <Icon icon={ShoppingBag} className="h-4 w-4" aria-hidden />}
+            {busy === "cart" ? "Илова..." : "Ба сабад"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

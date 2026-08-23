@@ -1,119 +1,89 @@
-# Deploy
+# Deploy: ҳар ду дар Vercel (frontend + backend)
 
-Агар Railway/Vercel алоҳида нашавад, **як сервер** истифода баред: **[DEPLOY-ONE-SERVER.md](./DEPLOY-ONE-SERVER.md)** (frontend + backend якҷоя, база Neon).
+Сайт ва API дар **як лоиҳаи Vercel** мешаванд, як URL:
+`https://marketplyser.vercel.app` — саҳифаҳо, `/api` — backend.
 
----
+База: **Neon**. Расмҳо: **Cloudinary** (тавсия).
 
-# Deploy: Vercel + Railway + Neon
-
-Лоиҳа барои production тайёр аст.
-
-| Қисм | Хизмат | Root Directory |
-|------|--------|----------------|
-| Frontend | [Vercel](https://vercel.com) | `frontend` |
-| Backend | [Railway](https://railway.app) | `backend` |
-| Database | [Neon](https://neon.tech) PostgreSQL | — |
-| Расмҳо | [Cloudinary](https://cloudinary.com) (тавсия) | — |
-
-Cookie-ҳои login кор мекунанд, агар frontend аз **ҳамон домени Vercel** ба `/api` дархост фиристад (`NEXT_PUBLIC_API_URL` холи). Vercel онро ба Railway rewrite мекунад.
+Файлҳои лозим аллакай ҳастанд: `vercel.json` дар решаи репо.
 
 ---
 
-## 1. Neon
+## 1. Neon-ро фаъол кунед
 
-1. Лоиҳаи нав созед, PostgreSQL-ро гиред.
-2. **Connection string**-ҳоро нусха кунед:
-   - **Pooled** → `DATABASE_URL` (охираш `?sslmode=require`)
-   - **Direct** (unpooled) → `DIRECT_URL` (барои `prisma migrate`)
-3. Агар танҳо як URL доред, ҳамонро ба ҳар ду тағйирёбанда гузоред.
+1. [console.neon.tech](https://console.neon.tech) → лоиҳа → **Resume** агар хоб бошад.
+2. Connection strings:
+   - **Pooled** → `DATABASE_URL` (`?sslmode=require`, **бе** `supavisor_session=true`)
+   - **Direct** (unpooled) → `DIRECT_URL`
+3. Агар як URL доред, ҳамонро ба ҳар ду гузоред.
 
 ---
 
-## 2. Railway (backend)
+## 2. Лоиҳаи Vercel
 
-1. New Project → Deploy from GitHub → репозиторийи `marketplyser`.
-2. **Root Directory:** `backend`
-3. Variables:
+1. [vercel.com](https://vercel.com) → **Add New** → **Project** → репои `marketplyser`.
+2. **Root Directory:** холӣ / `.` / `./`  
+   **На** `frontend`. Агар `frontend` бошад, backend умуман билд намешавад.
+3. **Framework Preset:** **Services** (на Next.js).
+4. `vercel.json` аз Git худ хонда мешавад. Override накунед.
 
-| Ном | Мисол |
+---
+
+## 3. Environment Variables
+
+Дар Vercel → Settings → Environment Variables. Ба **Production** (ва Preview) гузоред.
+
+| Key | Қимат |
 |-----|--------|
 | `DATABASE_URL` | Neon pooled |
 | `DIRECT_URL` | Neon direct |
 | `NODE_ENV` | `production` |
-| `JWT_ACCESS_SECRET` | калиди тасодуфӣ, ≥32 аломат |
-| `JWT_REFRESH_SECRET` | калиди дигар, ≥32 аломат |
-| `FRONTEND_URL` | `https://your-app.vercel.app` |
+| `JWT_ACCESS_SECRET` | ≥32 аломат (тасодуфӣ) |
+| `JWT_REFRESH_SECRET` | калиди **дигар**, ≥32 аломат |
+| `FRONTEND_URL` | `https://marketplyser.vercel.app` (URL-и ҳамин лоиҳа) |
 | `COOKIE_SAMESITE` | `lax` |
-| `CLOUDINARY_URL` | `cloudinary://...` (тавсия) |
+| `NEXT_PUBLIC_API_URL` | **холӣ** (ҳеҷ чиз) |
+| `API_INTERNAL_URL` | **холӣ** (ҳеҷ чиз) |
+| `CLOUDINARY_URL` | ихтиёрӣ, тавсия |
 
-`PORT`-ро Railway худаш мегузорад. Redis ихтиёрӣ аст.
+**Нагузоред:** номи URL-ро ҳамчун Key (`https://...` дар сутуни Key хато аст).
 
-4. Deploy. Healthcheck: `GET /api/health`
-5. URL-и сервис, масалан `https://nurov-api.up.railway.app` — ин `API_INTERNAL_URL` дар Vercel аст.
+Калидҳои JWT (дар компютери худ):
 
-Бори аввал, агар база холӣ бошад, аккаунтҳои demo сохта мешаванд:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Ду бор иҷро кунед — як барои ACCESS, як барои REFRESH.
+
+Пас аз гузоштани URL-и Vercel ба `FRONTEND_URL`, як бор **Redeploy** кунед.
+
+---
+
+## 4. Deploy
+
+**Deploy** пахш кунед. Vercel ду сервис месозад:
+
+- `frontend` → Next.js (`frontend/`)
+- `backend` → Express (`backend/src/index.ts`)
+
+Маршрутҳо:
+
+| URL | Куҷо меравад |
+|-----|----------------|
+| `/` `/search` `/admin` | frontend |
+| `/api/...` | backend |
+| `/uploads/...` | backend |
+
+Санҷиш: `https://YOUR-APP.vercel.app/api/health`  
+Бояд: `{"ok":true,"name":"Nurov Marketplace API"}`
+
+Агар база холӣ бошад, demo:
 
 - `admin@nurov.tj` / `Admin123!`
-- `seller@nurov.tj` / `Seller123!`
 - `user@nurov.tj` / `User123!`
 
-Паролҳоро дар production иваз кунед. `npm run prisma:seed` дар сервер **надавед** — ҳамаи маълумотро нест мекунад.
-
----
-
-## 3. Vercel (frontend)
-
-1. Import GitHub repo.
-2. **Root Directory:** `frontend`
-3. Framework: Next.js (худ муайян мешавад).
-4. Environment variables:
-
-| Ном | Қимат |
-|-----|--------|
-| `NEXT_PUBLIC_API_URL` | **холӣ гузоред** |
-| `API_INTERNAL_URL` | `https://xxxx.up.railway.app` (бе `/` дар охир) |
-
-5. Deploy. Баъд URL-и Vercel-ро ба `FRONTEND_URL` дар Railway гузоред ва backend-ро як бор Restart кунед.
-
-Агар домени шахсӣ бандед (масалан `nurov.tj`), онро ҳам ба `FRONTEND_URL` илова кунед:
-
-```
-https://nurov.tj,https://www.nurov.tj,https://your-app.vercel.app
-```
-
----
-
-## 4. Расмҳо
-
-Диски Railway муваққатӣ аст. Бе Cloudinary расмҳои боршуда пас аз restart гум мешаванд.
-
-Дар Cloudinary Dashboard → API Environment variable → `CLOUDINARY_URL`-ро ба Railway гузоред.
-
----
-
-## 5. Локалӣ пас аз ин тағйирот
-
-SQLite дигар кор намекунад. PostgreSQL лозим аст:
-
-```bash
-docker compose up -d postgres
-```
-
-Дар `backend/.env`:
-
-```
-DATABASE_URL="postgresql://nurov:nurov@localhost:5432/nurov_marketplace"
-DIRECT_URL="postgresql://nurov:nurov@localhost:5432/nurov_marketplace"
-```
-
-```bash
-cd backend
-npx prisma migrate deploy
-npx prisma db seed
-npm run dev
-```
-
-Ё ҳамон URL-ҳои Neon-ро дар `.env` гузоред.
+Паролҳоро дар production иваз кунед.
 
 ---
 
@@ -121,8 +91,16 @@ npm run dev
 
 | Мушкил | Ҳал |
 |--------|-----|
-| Login кор намекунад / cookie нест | `NEXT_PUBLIC_API_URL`-ро холӣ гузоред; `API_INTERNAL_URL` = Railway |
-| CORS error | `FRONTEND_URL` бояд URL-и дақиқи Vercel бошад |
-| Prisma migrate failed (pgbouncer) | `DIRECT_URL` = Neon **direct** (unpooled) |
-| JWT error ҳангоми старт | секретҳо ≥32 аломат, на `change-me` |
-| Расмҳо нест мешаванд | `CLOUDINARY_URL` гузоред |
+| `DEPLOYMENT_NOT_FOUND` / танҳо frontend | Root Directory = `.`, Framework = **Services** |
+| `/api` 404 | `vercel.json` дар решаи репо бошад; `/api` rewrite ба backend |
+| Login / cookie нест | `NEXT_PUBLIC_API_URL` ва `API_INTERNAL_URL` холӣ |
+| Prisma / migrate failed | Neon Resume; `DIRECT_URL` = unpooled; `DATABASE_URL` бе `supavisor_session=true` |
+| JWT error | секретҳо ≥32 аломат, на `change-me` |
+| Расмҳо нест мешаванд | `CLOUDINARY_URL` — диски Vercel пойдор нест |
+| Чат realtime | Socket.io дар Vercel Functions маҳдуд аст |
+
+---
+
+## Алоҳида (ихтиёрӣ)
+
+Агар Services дастрас набошад: frontend дар Vercel (`Root: frontend`) ва backend дар Railway. Он гоҳ `API_INTERNAL_URL` = URL-и Railway, `NEXT_PUBLIC_API_URL` ҳанӯз холӣ.

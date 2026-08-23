@@ -47,23 +47,9 @@ export async function register(req: AuthedRequest, res: Response) {
       phone: data.phone,
       passwordHash,
       avatar: data.avatar,
-      role: data.intent === "sell" ? "SELLER" : "USER",
+      role: "USER",
     },
   });
-
-  if (data.intent === "sell") {
-    await prisma.seller.create({
-      data: {
-        userId: user.id,
-        shopName: data.shopName || `${data.firstName} Shop`,
-        phone: data.phone,
-        email: data.email.toLowerCase(),
-        address: data.shopAddress || "",
-        description: data.shopDescription || "",
-        status: "PENDING",
-      },
-    });
-  }
 
   const payload = { userId: user.id, role: user.role };
   const access = signAccessToken(payload);
@@ -127,13 +113,26 @@ export async function refresh(req: AuthedRequest, res: Response) {
 }
 
 export async function me(req: AuthedRequest, res: Response) {
+  res.setHeader("Cache-Control", "private, no-store");
   if (!req.user) return res.json({ user: null, seller: null });
   const user = await prisma.user.findUnique({
     where: { id: req.user.id },
-    include: { seller: true },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      avatar: true,
+      role: true,
+      accountStatus: true,
+      createdAt: true,
+      seller: { select: { id: true, shopName: true, status: true, logo: true } },
+    },
   });
   if (!user) return res.json({ user: null, seller: null });
-  return res.json({ user: publicUser(user), seller: user.seller });
+  const { seller, ...rest } = user;
+  return res.json({ user: publicUser(rest), seller });
 }
 
 export async function updateProfile(req: AuthedRequest, res: Response) {

@@ -11,7 +11,7 @@ import { useI18n } from "@/lib/i18n";
 import { Icon } from "@/components/ui/Icon";
 import type { Product } from "@/types";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const img = product.images?.[0]?.url;
   const { user } = useAuth();
   const { open } = useAuthModal();
@@ -41,7 +41,7 @@ export function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <article className="group overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/80 transition duration-200 hover:-translate-y-0.5 hover:shadow-card">
+    <article className="group overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/80 [content-visibility:auto] [contain-intrinsic-size:360px]">
       <Link href={`/product/${product.id}`} className="block">
         <div className="relative aspect-square overflow-hidden bg-slate-100">
           {img && (
@@ -49,11 +49,12 @@ export function ProductCard({ product }: { product: Product }) {
             <img
               src={mediaUrl(img, "sm")}
               alt={product.name}
-              width={480}
-              height={480}
-              loading="lazy"
+              width={320}
+              height={320}
+              loading={priority ? "eager" : "lazy"}
+              fetchPriority={priority ? "high" : "low"}
               decoding="async"
-              className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04]"
+              className="h-full w-full object-cover"
             />
           )}
           {product.discount > 0 && (

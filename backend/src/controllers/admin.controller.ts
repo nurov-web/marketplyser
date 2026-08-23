@@ -5,6 +5,7 @@ import { AuthedRequest } from "../middleware/auth";
 import { notify } from "../lib/notify";
 import { publicUser, routeParam } from "../utils/helpers";
 import { ilike } from "../lib/search";
+import { removeProductById, invalidateHomeCache } from "./product.controller";
 
 export async function adminDashboard(_req: AuthedRequest, res: Response) {
   const [users, sellers, products, orders, pendingSellers, pendingProducts] = await Promise.all([
@@ -175,8 +176,8 @@ export async function adminProductAction(req: AuthedRequest, res: Response) {
   if (!product) return res.status(404).json({ message: "Маҳсулот ёфт нашуд" });
 
   if (action === "delete") {
-    await prisma.product.delete({ where: { id: product.id } });
-    return res.json({ ok: true });
+    const result = await removeProductById(product.id);
+    return res.json(result);
   }
 
   const map: Record<string, "APPROVED" | "REJECTED" | "HIDDEN" | "PENDING"> = {
@@ -192,6 +193,7 @@ export async function adminProductAction(req: AuthedRequest, res: Response) {
     where: { id: product.id },
     data: { moderationStatus: status, rejectReason: reason },
   });
+  invalidateHomeCache();
   if (action === "approve") {
     await notify(product.seller.userId, "PRODUCT_APPROVED", "Маҳсулот тасдиқ шуд", product.name);
   } else if (action === "reject") {
@@ -206,6 +208,7 @@ export async function adminUpdateProduct(req: AuthedRequest, res: Response) {
     where: { id: routeParam(req.params.id) },
     data: { name, description, price, stock },
   });
+  invalidateHomeCache();
   return res.json(product);
 }
 

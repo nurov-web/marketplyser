@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import { useI18n, type Lang } from "@/lib/i18n";
 
 const langs: { id: Lang; label: string }[] = [
@@ -11,7 +10,6 @@ const langs: { id: Lang; label: string }[] = [
 
 export function LangSwitch() {
   const { lang, setLang } = useI18n();
-  const reduce = useReducedMotion();
 
   return (
     <div
@@ -27,19 +25,11 @@ export function LangSwitch() {
             type="button"
             onClick={() => setLang(l.id)}
             aria-pressed={active}
-            className={`relative flex h-8 min-w-8 items-center justify-center rounded-full px-2.5 text-[11px] font-bold tracking-wide transition ${
-              active ? "text-white" : "text-slate-500 hover:text-ink"
+            className={`relative flex h-8 min-w-8 items-center justify-center rounded-full px-2.5 text-[11px] font-bold tracking-wide ${
+              active ? "bg-primary text-white shadow-sm" : "text-slate-500 hover:text-ink"
             }`}
           >
-            {active && (
-              <motion.span
-                layoutId={reduce ? undefined : "lang-pill"}
-                className="absolute inset-0 rounded-full bg-primary shadow-sm"
-                transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 32 }}
-                aria-hidden
-              />
-            )}
-            <span className="relative z-[1]">{l.label}</span>
+            {l.label}
           </button>
         );
       })}

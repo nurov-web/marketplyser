@@ -23,7 +23,7 @@ export const extraNav: NavLink[] = [
 
 export function roleNav(role?: Role | null): NavLink[] {
   const items: NavLink[] = [];
-  if (role === "SELLER" || role === "ADMIN") items.push({ href: "/seller", key: "sellerPanel" });
+  if (role === "SELLER") items.push({ href: "/seller", key: "sellerPanel" });
   if (role === "ADMIN") {
     items.push({ href: "/admin/crm", key: "crm" });
     items.push({ href: "/admin", key: "adminPanel" });

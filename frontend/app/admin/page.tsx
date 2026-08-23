@@ -18,12 +18,12 @@ type Dash = {
 };
 
 const cards = [
-  { key: "users", label: "Users", href: "/admin/users", icon: Users, tone: "bg-blue-50 text-primary" },
-  { key: "sellers", label: "Sellers", href: "/admin/sellers", icon: Store, tone: "bg-sky-50 text-sky-700" },
-  { key: "products", label: "Products", href: "/admin/products", icon: Package, tone: "bg-violet-50 text-violet-700" },
-  { key: "orders", label: "Orders", href: "/admin/orders", icon: ShoppingBag, tone: "bg-amber-50 text-amber-700" },
-  { key: "pendingSellers", label: "Seller pending", href: "/admin/sellers", icon: Clock, tone: "bg-orange-50 text-orange-700" },
-  { key: "pendingProducts", label: "Product pending", href: "/admin/products", icon: Clock, tone: "bg-rose-50 text-rose-700" },
+  { key: "products", label: "Молҳо", href: "/admin/products", icon: Package, tone: "bg-violet-50 text-violet-700" },
+  { key: "orders", label: "Фармоишҳо", href: "/admin/orders", icon: ShoppingBag, tone: "bg-amber-50 text-amber-700" },
+  { key: "users", label: "Корбарон", href: "/admin/users", icon: Users, tone: "bg-blue-50 text-primary" },
+  { key: "sellers", label: "Фурӯшандагон", href: "/admin/sellers", icon: Store, tone: "bg-sky-50 text-sky-700" },
+  { key: "pendingSellers", label: "Seller интизор", href: "/admin/sellers", icon: Clock, tone: "bg-orange-50 text-orange-700" },
+  { key: "pendingProducts", label: "Мол интизор", href: "/admin/products", icon: Clock, tone: "bg-rose-50 text-rose-700" },
 ] as const;
 
 export default function AdminHome() {
@@ -47,7 +47,15 @@ export default function AdminHome() {
       <h1 className="mt-1 text-3xl text-ink sm:text-4xl">
         <StrokeText text="Dashboard" />
       </h1>
-      <p className="mt-2 max-w-xl text-sm text-muted-foreground">Омори бозор, тасдиқҳо ва фармоишҳои навтарин.</p>
+      <p className="mt-2 max-w-xl text-sm text-muted-foreground">Мол, категория, фармоиш ва корбарон — ҳама дар дасти шумо.</p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/admin/products/new" className="btn-primary min-h-11">
+          Моли нав
+        </Link>
+        <Link href="/admin/categories" className="btn-ghost min-h-11">
+          Категорияҳо
+        </Link>
+      </div>
 
       <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3">
         {cards.map((c) => (

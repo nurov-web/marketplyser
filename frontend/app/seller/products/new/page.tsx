@@ -1,5 +1,15 @@
 "use client";
-import ProductForm from "@/components/seller/ProductForm";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+
 export default function NewProduct() {
-  return <ProductForm mode="new" />;
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    if (loading) return;
+    router.replace(user?.role === "ADMIN" ? "/admin/products/new" : "/seller/products");
+  }, [user, loading, router]);
+  return <p className="py-16 text-center text-slate-500">Интизор...</p>;
 }

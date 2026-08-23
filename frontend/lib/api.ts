@@ -66,7 +66,7 @@ export function getOnce<T>(path: string): Promise<T> {
   p.finally(() => {
     setTimeout(() => {
       if (inflight.get(path) === p) inflight.delete(path);
-    }, 20_000);
+    }, 60_000);
   });
   return p;
 }
@@ -78,8 +78,8 @@ export function mediaUrl(url?: string | null, size: "sm" | "lg" = "sm") {
       const u = new URL(url);
       u.searchParams.set("auto", "format");
       u.searchParams.set("fit", "crop");
-      u.searchParams.set("w", size === "sm" ? "480" : "900");
-      u.searchParams.set("q", "72");
+      u.searchParams.set("w", size === "sm" ? "360" : "800");
+      u.searchParams.set("q", "65");
       return u.toString();
     } catch {
       return url;

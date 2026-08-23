@@ -1,52 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { api, money } from "@/lib/api";
-import type { Product } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function SellerProducts() {
-  const [items, setItems] = useState<Product[]>([]);
-  function load() {
-    api<{ items: Product[] }>("/api/products/seller/mine").then((d) => setItems(d.items)).catch(() => {});
+  const { user } = useAuth();
+  if (user?.role === "ADMIN") {
+    return (
+      <div className="rounded-2xl bg-white p-8 text-center shadow-soft">
+        <h1 className="text-2xl font-bold">Молҳо дар панели Admin</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Мол ва категорияро аз он ҷо илова ва нест кунед.</p>
+        <Link href="/admin/products" className="btn-primary mt-6 min-h-12">
+          Ба молҳо
+        </Link>
+      </div>
+    );
   }
-  useEffect(() => { load(); }, []);
-
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Маҳсулот</h1>
-        <Link href="/seller/products/new" className="btn-gold">Add Product</Link>
-      </div>
-      <div className="mt-6 overflow-x-auto rounded-2xl bg-white shadow-soft">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b text-slate-500">
-            <tr><th className="p-3">Ном</th><th>Нарх</th><th>Захира</th><th>Статус</th><th></th></tr>
-          </thead>
-          <tbody>
-            {items.map((p) => (
-              <tr key={p.id} className="border-b last:border-0">
-                <td className="p-3 font-medium">{p.name}</td>
-                <td>{money(p.price)}</td>
-                <td>{p.stock}</td>
-                <td>{p.moderationStatus}</td>
-                <td className="p-3">
-                  <Link href={`/seller/products/${p.id}`} className="text-gold-700">Таҳрир</Link>
-                  <button
-                    className="ml-3 text-red-600"
-                    onClick={async () => {
-                      await api(`/api/products/${p.id}`, { method: "DELETE" });
-                      load();
-                    }}
-                  >
-                    Пинҳон
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="rounded-2xl bg-white p-8 text-center shadow-soft">
+      <h1 className="text-2xl font-bold">Танҳо Admin мол илова мекунад</h1>
+      <p className="mt-2 text-sm text-muted-foreground">Шумо метавонед харид кунед. Илова ва нест кардани мол дар дасти Admin аст.</p>
+      <Link href="/search" className="btn-primary mt-6 min-h-12">
+        Ба каталог
+      </Link>
     </div>
   );
 }

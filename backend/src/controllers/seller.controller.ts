@@ -16,19 +16,7 @@ export const sellerApplySchema = z.object({
 });
 
 export async function applySeller(req: AuthedRequest, res: Response) {
-  const existing = await prisma.seller.findUnique({ where: { userId: req.user!.id } });
-  if (existing) return res.json(existing);
-  const data = req.body as z.infer<typeof sellerApplySchema>;
-  const seller = await prisma.seller.create({
-    data: {
-      userId: req.user!.id,
-      ...data,
-      documents: data.documents || [],
-      status: "PENDING",
-    },
-  });
-  await prisma.user.update({ where: { id: req.user!.id }, data: { role: "SELLER" } });
-  return res.status(201).json(seller);
+  return res.status(403).json({ message: "Танҳо Admin мол ва категория илова мекунад" });
 }
 
 export async function getSellerMe(req: AuthedRequest, res: Response) {

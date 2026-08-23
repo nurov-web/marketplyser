@@ -38,7 +38,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="container-n py-8">
+    <div className="container-n py-8 pb-28 md:pb-8">
       <div className="mx-auto max-w-5xl">
         <h1 className="text-2xl font-bold tracking-tight">Сабад</h1>
         <div className={`mt-6 grid items-start gap-6 ${cartLoading || items.length ? "md:grid-cols-[minmax(0,1fr)_280px]" : ""}`}>
@@ -115,7 +115,7 @@ export default function CartPage() {
             )}
           </div>
           {(cartLoading || items.length > 0) && (
-          <aside className="h-fit rounded-2xl border border-border bg-white p-5 shadow-soft md:sticky md:top-24">
+          <aside className="hidden h-fit rounded-2xl border border-border bg-white p-5 shadow-soft md:sticky md:top-24 md:block">
             <h2 className="text-sm font-semibold text-ink">Ҷамъбаст</h2>
             <p className="mt-4 flex justify-between text-sm">
               <span className="text-muted-foreground">Ҷамъи мол</span>
@@ -129,13 +129,26 @@ export default function CartPage() {
               <span>Ҷамъ</span>
               <span className="tabular-nums">{money(total)}</span>
             </p>
-            <Link href="/checkout" className="btn-accent mt-5 w-full">
+            <Link href="/checkout" className="btn-primary mt-5 w-full">
               Ба пардохт
             </Link>
           </aside>
           )}
         </div>
       </div>
+      {items.length > 0 && (
+        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border bg-white/95 px-4 py-2.5 shadow-lift backdrop-blur-xl md:hidden">
+          <div className="flex items-center gap-3">
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">Ҷамъ</p>
+              <p className="text-lg font-bold tabular-nums leading-tight">{money(total)}</p>
+            </div>
+            <Link href="/checkout" className="btn-primary min-h-12 flex-1">
+              Ба пардохт
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,9 +3,8 @@
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { motion, useReducedMotion } from "framer-motion";
 import { Search, SearchX } from "lucide-react";
-import { api } from "@/lib/api";
+import { api, getOnce } from "@/lib/api";
 import { ProductCard } from "@/components/product/ProductCard";
 import { FilterPanel } from "@/components/search/FilterPanel";
 import { Icon } from "@/components/ui/Icon";
@@ -13,7 +12,6 @@ import type { Category, Product } from "@/types";
 
 function SearchInner() {
   const params = useSearchParams();
-  const reduce = useReducedMotion();
   const urlQ = params.get("q") || "";
   const urlCat = params.get("category") || "";
   const [items, setItems] = useState<Product[]>([]);
@@ -46,7 +44,7 @@ function SearchInner() {
   }
 
   useEffect(() => {
-    api<{ items: Category[] }>("/api/categories")
+    getOnce<{ items: Category[] }>("/api/categories")
       .then((d) => setCats(d.items))
       .catch(() => {});
   }, []);
@@ -143,16 +141,11 @@ function SearchInner() {
             ))}
           </div>
         ) : items.length ? (
-          <motion.div
-            initial={reduce ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.2 }}
-            className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-6"
-          >
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-6">
             {items.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
-          </motion.div>
+          </div>
         ) : (
           <div className="rounded-2xl border border-border bg-white px-6 py-16 text-center shadow-soft">
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10">

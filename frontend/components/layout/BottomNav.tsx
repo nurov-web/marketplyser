@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LayoutGrid, Package, ShoppingBag, UserRound } from "lucide-react";
+import { Home, LayoutGrid, ShoppingBag, UserRound } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useCart } from "@/hooks/useCart";
 import { Icon } from "@/components/ui/Icon";
@@ -15,15 +15,14 @@ export function BottomNav() {
 
   const items = [
     { href: "/", label: t("home"), icon: Home },
-    { href: "/search", label: t("products"), icon: LayoutGrid },
+    { href: "/search", label: t("catalog"), icon: LayoutGrid },
     { href: "/cart", label: t("cart"), icon: ShoppingBag },
-    { href: "/orders", label: t("orders"), icon: Package },
     { href: "/profile", label: t("profile"), icon: UserRound },
   ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/50 bg-white/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden" aria-label={t("menu")}>
-      <ul className="grid grid-cols-5">
+      <ul className="grid grid-cols-4">
         {items.map((item) => {
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
           return (

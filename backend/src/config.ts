@@ -5,7 +5,7 @@ export const config = {
   port: Number(process.env.PORT || 4000),
   nodeEnv: process.env.NODE_ENV || "development",
   databaseUrl: process.env.DATABASE_URL || "",
-  redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
+  redisUrl: process.env.REDIS_URL || "",
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET || "dev-access",
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || "dev-refresh",
   jwtAccessExpires: process.env.JWT_ACCESS_EXPIRES || "7d",

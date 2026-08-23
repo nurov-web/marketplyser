@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { CheckCircle2, Eye, EyeOff, Loader2, ShoppingBag, Store, X } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, Loader2, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -103,7 +103,6 @@ const field = "rounded-xl !py-2.5";
 
 function RegisterInner({ onLogin, onDone }: { onLogin: () => void; onDone: (to: string) => void }) {
   const { refresh } = useAuth();
-  const [intent, setIntent] = useState<"buy" | "sell">("buy");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [show, setShow] = useState(false);
@@ -113,7 +112,6 @@ function RegisterInner({ onLogin, onDone }: { onLogin: () => void; onDone: (to: 
     email: "",
     phone: "",
     password: "",
-    shopName: "",
   });
 
   function set<K extends keyof typeof form>(k: K, v: string) {
@@ -127,11 +125,11 @@ function RegisterInner({ onLogin, onDone }: { onLogin: () => void; onDone: (to: 
     try {
       await api("/api/auth/register", {
         method: "POST",
-        body: JSON.stringify({ ...form, intent }),
+        body: JSON.stringify({ ...form, intent: "buy" }),
       });
       await refresh();
       toast("Аккаунт сохта шуд");
-      onDone(intent === "sell" ? "/seller" : "/");
+      onDone("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Хато");
       setBusy(false);
@@ -143,28 +141,7 @@ function RegisterInner({ onLogin, onDone }: { onLogin: () => void; onDone: (to: 
       <h2 id="auth-title" className="text-xl font-bold">
         Сабти ном
       </h2>
-      <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
-        <button
-          type="button"
-          onClick={() => setIntent("buy")}
-          className={`flex min-h-10 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold ${
-            intent === "buy" ? "bg-white text-primary shadow-sm" : "text-slate-500"
-          }`}
-        >
-          <ShoppingBag className="h-4 w-4" aria-hidden />
-          Харид
-        </button>
-        <button
-          type="button"
-          onClick={() => setIntent("sell")}
-          className={`flex min-h-10 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold ${
-            intent === "sell" ? "bg-white text-amber-600 shadow-sm" : "text-slate-500"
-          }`}
-        >
-          <Store className="h-4 w-4" aria-hidden />
-          Фурӯш
-        </button>
-      </div>
+      <p className="text-sm text-muted-foreground">Барои харид ном, email ва парол кифоя аст.</p>
       <div className="grid grid-cols-2 gap-2">
         <input className={field} placeholder="Ном" required autoComplete="given-name" value={form.firstName} onChange={(e) => set("firstName", e.target.value)} />
         <input className={field} placeholder="Насаб" required autoComplete="family-name" value={form.lastName} onChange={(e) => set("lastName", e.target.value)} />
@@ -186,15 +163,12 @@ function RegisterInner({ onLogin, onDone }: { onLogin: () => void; onDone: (to: 
           {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </button>
       </div>
-      {intent === "sell" && (
-        <input className={field} placeholder="Номи дӯкон (ихтиёрӣ)" value={form.shopName} onChange={(e) => set("shopName", e.target.value)} />
-      )}
       {error && (
         <p className="text-sm text-red-600" role="alert">
           {error}
         </p>
       )}
-      <button className="btn-primary w-full" disabled={busy}>
+      <button className="btn-primary min-h-12 w-full" disabled={busy}>
         {busy ? "Интизор..." : "Сабт шудан"}
       </button>
       <p className="text-center text-sm text-muted-foreground">

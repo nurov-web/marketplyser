@@ -3,25 +3,23 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Search, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { getOnce, mediaUrl } from "@/lib/api";
 import { ProductGrid } from "@/components/home/ProductGrid";
 import { FlashDeals } from "@/components/home/FlashDeals";
-import { RecentlyViewed } from "@/components/home/RecentlyViewed";
-import { Testimonials } from "@/components/home/Testimonials";
-import { Faq } from "@/components/home/Faq";
-import { FadeIn, Stagger, itemFade } from "@/components/motion/FadeIn";
+import dynamic from "next/dynamic";
+import { FadeIn, Stagger } from "@/components/motion/FadeIn";
 import { useI18n } from "@/lib/i18n";
-import { useAuthModal } from "@/hooks/useAuthModal";
 import { Icon } from "@/components/ui/Icon";
 import type { Category, Product } from "@/types";
 
+const RecentlyViewed = dynamic(() => import("@/components/home/RecentlyViewed").then((m) => m.RecentlyViewed));
+const Testimonials = dynamic(() => import("@/components/home/Testimonials").then((m) => m.Testimonials));
+const Faq = dynamic(() => import("@/components/home/Faq").then((m) => m.Faq));
+
 export default function HomePage() {
   const { t } = useI18n();
-  const { open: openAuth } = useAuthModal();
   const router = useRouter();
-  const reduce = useReducedMotion();
   const [q, setQ] = useState("");
   const [cats, setCats] = useState<Category[]>([]);
   const [sections, setSections] = useState<{
@@ -29,6 +27,8 @@ export default function HomePage() {
     popular: Product[];
     deals: Product[];
   } | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -36,10 +36,16 @@ export default function HomePage() {
       getOnce<{ new: Product[]; popular: Product[]; deals: Product[] }>("/api/products/home/sections"),
     ])
       .then(([c, s]) => {
-        setCats(c.items);
+        setCats(c.items || []);
         setSections(s);
+        setError(false);
       })
-      .catch(() => {});
+      .catch(() => {
+        setCats([]);
+        setSections({ new: [], popular: [], deals: [] });
+        setError(true);
+      })
+      .finally(() => setLoaded(true));
   }, []);
 
   function goSearch(e: React.FormEvent) {
@@ -50,10 +56,7 @@ export default function HomePage() {
   return (
     <div>
       <section className="container-n mt-6">
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        <div
           className="hero-pattern relative overflow-hidden rounded-[2rem] px-6 py-14 text-white md:px-14 md:py-20"
           style={{ backgroundColor: "#0b1f4b" }}
         >
@@ -74,12 +77,9 @@ export default function HomePage() {
                 />
               </form>
               <div className="relative mt-6 flex flex-wrap gap-3">
-                <Link href="/search" className="btn-accent">
+                <Link href="/search" className="btn-primary">
                   {t("viewProducts")} <Icon icon={ArrowRight} className="h-4 w-4" aria-hidden />
                 </Link>
-                <button type="button" onClick={() => openAuth("register")} className="btn border border-white/30 bg-white/10 text-white hover:bg-white/20">
-                  {t("startSelling")}
-                </button>
               </div>
               <div className="relative mt-8 grid max-w-xl grid-cols-3 gap-3 text-xs md:text-sm">
                 <div className="rounded-2xl bg-white/10 p-3 ring-1 ring-white/15 backdrop-blur-md">
@@ -141,42 +141,56 @@ export default function HomePage() {
               );
             })()}
           </div>
-        </motion.div>
+        </div>
       </section>
 
       <FadeIn className="container-n mt-block">
         <h2 className="mb-6 text-2xl font-bold tracking-tight md:text-3xl">{t("categories")}</h2>
-        {!cats.length ? (
-          <div className="grid grid-cols-4 gap-3 md:grid-cols-8">
+        {!loaded ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
             {Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton aspect-square" />)}
           </div>
+        ) : !cats.length || error ? (
+          <div className="rounded-2xl border border-border bg-white px-6 py-12 text-center shadow-soft">
+            <p className="text-sm text-muted-foreground">{t("emptyCategories")}</p>
+            <Link href="/search" className="btn-primary mt-5">
+              {t("viewProducts")}
+            </Link>
+          </div>
         ) : (
-          <Stagger className="grid grid-cols-4 gap-3 md:grid-cols-8 md:gap-4">
+          <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-4 lg:grid-cols-8">
             {cats.map((c) => (
-              <motion.div key={c.id} variants={itemFade}>
-                <Link href={`/search?category=${c.slug}`} className="group block overflow-hidden rounded-2xl bg-white shadow-soft">
+              <Link key={c.id} href={`/search?category=${c.slug}`} className="group block overflow-hidden rounded-2xl bg-white shadow-soft">
                   <div className="aspect-square overflow-hidden bg-slate-100">
                     {c.image && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={mediaUrl(c.image)} alt={c.name} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                      <img src={mediaUrl(c.image)} alt={c.name} className="h-full w-full object-cover" loading="lazy" decoding="async" />
                     )}
                   </div>
-                  <p className="px-2 py-2 text-center text-[11px] font-medium md:text-xs">{c.name}</p>
+                  <p className="px-2 py-2 text-center text-sm font-medium">{c.name}</p>
                 </Link>
-              </motion.div>
             ))}
           </Stagger>
         )}
       </FadeIn>
 
-      {!sections ? (
+      {!loaded ? (
         <div className="container-n mt-block grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-12">
           {Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton h-64" />)}
+        </div>
+      ) : error || !sections || !(sections.new.length || sections.popular.length || sections.deals.length) ? (
+        <div className="container-n mt-block">
+          <div className="rounded-2xl border border-border bg-white px-6 py-16 text-center shadow-soft">
+            <p className="text-lg font-semibold text-ink">{t("emptyHome")}</p>
+            <Link href="/search" className="btn-primary mt-6">
+              {t("viewProducts")}
+            </Link>
+          </div>
         </div>
       ) : (
         <>
           <FlashDeals products={sections.deals} />
-          <ProductGrid title={t("popular")} products={sections.popular} href="/search" />
+          <ProductGrid title={t("popular")} products={sections.popular} href="/search" eager />
           <ProductGrid title={t("newest")} products={sections.new} href="/search" />
           <RecentlyViewed />
         </>
@@ -217,9 +231,9 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold md:text-4xl">{t("sellerCtaTitle")}</h2>
             <p className="mt-3 text-sm leading-6 text-slate-300 md:text-base">{t("sellerCtaText")}</p>
           </div>
-          <button type="button" onClick={() => openAuth("register")} className="btn-accent shrink-0">
-            {t("startSelling")} <Icon icon={ArrowRight} className="h-4 w-4" aria-hidden />
-          </button>
+          <Link href="/search" className="btn-primary shrink-0">
+            {t("viewProducts")} <Icon icon={ArrowRight} className="h-4 w-4" aria-hidden />
+          </Link>
         </div>
       </FadeIn>
     </div>

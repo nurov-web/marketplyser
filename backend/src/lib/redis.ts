@@ -26,26 +26,28 @@ function memoryDel(key: string) {
 let redis: Redis | null = null;
 let redisReady = false;
 
-try {
-  redis = new Redis(config.redisUrl, {
-    maxRetriesPerRequest: 1,
-    enableOfflineQueue: false,
-    lazyConnect: true,
-  });
-  redis.on("error", () => {
-    redisReady = false;
-  });
-  redis
-    .connect()
-    .then(() => {
-      redisReady = true;
-    })
-    .catch(() => {
-      redisReady = false;
-      console.warn("Redis unavailable — using in-memory store");
+if (config.redisUrl) {
+  try {
+    redis = new Redis(config.redisUrl, {
+      maxRetriesPerRequest: 1,
+      enableOfflineQueue: false,
+      lazyConnect: true,
+      connectTimeout: 600,
     });
-} catch {
-  redis = null;
+    redis.on("error", () => {
+      redisReady = false;
+    });
+    redis
+      .connect()
+      .then(() => {
+        redisReady = true;
+      })
+      .catch(() => {
+        redisReady = false;
+      });
+  } catch {
+    redis = null;
+  }
 }
 
 export const cache = {

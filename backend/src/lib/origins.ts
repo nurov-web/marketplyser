@@ -14,6 +14,9 @@ export function isAllowedOrigin(origin: string | undefined): boolean {
     const { hostname } = new URL(origin);
     if (hostname === "localhost" || hostname === "127.0.0.1") return true;
     if (hostname.endsWith(".vercel.app")) return true;
+    if (hostname.endsWith(".up.railway.app")) return true;
+    if (hostname.endsWith(".onrender.com")) return true;
+    if (hostname.endsWith(".fly.dev")) return true;
   } catch {
     return false;
   }

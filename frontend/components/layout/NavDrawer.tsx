@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { LogOut, X } from "lucide-react";
 import { extraNav, isActive, primaryNav, roleNav } from "@/lib/nav";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,35 +18,25 @@ export function NavDrawer({ open, onClose }: { open: boolean; onClose: () => voi
   const { t } = useI18n();
   const { user, logout } = useAuth();
   const { open: openAuth } = useAuthModal();
-  const reduce = useReducedMotion();
   const roleLinks = roleNav(user?.role);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return null;
+  if (!mounted || !open) return null;
 
   return createPortal(
-    <AnimatePresence>
-      {open && (
         <div className="fixed inset-0 z-[70] lg:hidden">
-          <motion.button
+          <button
             type="button"
             aria-label={t("close")}
-            className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-slate-900/50"
             onClick={onClose}
           />
-          <motion.aside
+          <aside
             role="dialog"
             aria-modal="true"
             aria-label={t("menu")}
-            initial={reduce ? false : { x: -320 }}
-            animate={{ x: 0 }}
-            exit={reduce ? undefined : { x: -320 }}
-            transition={{ type: "spring", stiffness: 380, damping: 34 }}
             className="absolute inset-y-0 left-0 flex w-[min(20rem,88vw)] flex-col bg-white shadow-lift"
           >
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
@@ -145,15 +134,13 @@ export function NavDrawer({ open, onClose }: { open: boolean; onClose: () => voi
                       openAuth("register");
                     }}
                   >
-                    {t("startSelling")}
+                    {t("register")}
                   </button>
                 </div>
               )}
             </div>
-          </motion.aside>
-        </div>
-      )}
-    </AnimatePresence>,
+          </aside>
+        </div>,
     document.body
   );
 }

@@ -5,7 +5,17 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { useI18n } from "@/lib/i18n";
 import type { Product } from "@/types";
 
-export function ProductGrid({ title, products, href }: { title: string; products: Product[]; href?: string }) {
+export function ProductGrid({
+  title,
+  products,
+  href,
+  eager = false,
+}: {
+  title: string;
+  products: Product[];
+  href?: string;
+  eager?: boolean;
+}) {
   const { t } = useI18n();
   if (!products?.length) return null;
   return (
@@ -19,8 +29,8 @@ export function ProductGrid({ title, products, href }: { title: string; products
         )}
       </div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
+        {products.map((p, i) => (
+          <ProductCard key={p.id} product={p} priority={eager && i < 4} />
         ))}
       </div>
     </section>

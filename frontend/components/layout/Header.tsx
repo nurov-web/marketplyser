@@ -32,11 +32,15 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
 
+  const panel = pathname.startsWith("/admin") || pathname.startsWith("/seller");
+  const showCats = !panel && (pathname === "/" || pathname.startsWith("/search"));
+
   useEffect(() => {
+    if (!showCats) return;
     getOnce<{ items: Category[] }>("/api/categories")
       .then((d) => setCats(d.items))
       .catch(() => {});
-  }, []);
+  }, [showCats]);
 
   useEffect(() => {
     if (q.trim().length < 2) {
@@ -80,8 +84,6 @@ export function Header() {
       window.removeEventListener("keydown", onKey);
     };
   }, [menu]);
-
-  const panel = pathname.startsWith("/admin") || pathname.startsWith("/seller");
 
   function goSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -167,24 +169,24 @@ export function Header() {
           </div>
         </form>
         <nav className="ml-auto flex items-center gap-2.5">
-          <div className="flex items-center rounded-2xl bg-slate-100/80 p-0.5 ring-1 ring-inset ring-slate-200/80">
+          <div className="hidden items-center rounded-2xl bg-slate-100/80 p-0.5 ring-1 ring-inset ring-slate-200/80 md:flex">
             <Link
               href="/favorites"
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-white hover:text-rose-500 hover:shadow-sm"
+              className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition hover:bg-white hover:text-rose-500 hover:shadow-sm"
               aria-label={t("favorites")}
             >
               <Icon icon={Heart} className="h-5 w-5" />
             </Link>
             <Link
               href="/compare"
-              className="hidden h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-white hover:text-primary hover:shadow-sm sm:flex"
+              className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition hover:bg-white hover:text-primary hover:shadow-sm"
               aria-label={t("compare")}
             >
               <Icon icon={GitCompare} className="h-5 w-5" />
             </Link>
             <Link
               href="/cart"
-              className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-white hover:text-primary hover:shadow-sm"
+              className="relative flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition hover:bg-white hover:text-primary hover:shadow-sm"
               aria-label={t("cart")}
             >
               <Icon icon={ShoppingBag} className="h-5 w-5" />
@@ -197,7 +199,7 @@ export function Header() {
             {user && (
               <Link
                 href="/profile"
-                className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-white hover:text-primary hover:shadow-sm"
+                className="relative flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition hover:bg-white hover:text-primary hover:shadow-sm"
                 aria-label={t("notifications")}
               >
                 <Icon icon={Bell} className="h-5 w-5" />
@@ -210,11 +212,13 @@ export function Header() {
               </Link>
             )}
           </div>
-          <LangSwitch />
+          <div className="hidden sm:block">
+            <LangSwitch />
+          </div>
           {user ? (
             <Link
               href="/profile"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white shadow-soft ring-2 ring-white"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white shadow-soft ring-2 ring-white"
               aria-label={t("profile")}
             >
               {`${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase() || (
@@ -222,38 +226,31 @@ export function Header() {
               )}
             </Link>
           ) : (
-            <button type="button" onClick={() => openAuth("login")} className="btn-primary h-10 px-4 text-xs">
+            <button type="button" onClick={() => openAuth("login")} className="btn-primary min-h-11 px-4 text-xs">
               {t("login")}
             </button>
           )}
-          {user?.role === "ADMIN" ? (
+          {user?.role === "ADMIN" && (
             <Link
               href="/admin"
-              className="btn-primary hidden h-10 rounded-full px-3 text-xs md:inline-flex lg:px-3.5"
+              className="btn-primary hidden min-h-11 rounded-full px-3 text-xs md:inline-flex lg:px-3.5"
             >
               <Icon icon={LayoutDashboard} className="h-4 w-4" aria-hidden />
               <span className="hidden lg:inline">{t("adminPanel")}</span>
             </Link>
-          ) : user?.role === "SELLER" ? (
+          )}
+          {user?.role === "SELLER" && (
             <Link
               href="/seller"
-              className="btn-primary hidden h-10 rounded-full px-3 text-xs md:inline-flex lg:px-3.5"
+              className="btn-primary hidden min-h-11 rounded-full px-3 text-xs md:inline-flex lg:px-3.5"
             >
               <Icon icon={Store} className="h-4 w-4" aria-hidden />
               <span className="hidden lg:inline">{t("sellerPanel")}</span>
             </Link>
-          ) : (
-            <button
-              type="button"
-              onClick={() => openAuth("register")}
-              aria-label={t("startSelling")}
-              className="btn-primary hidden h-10 rounded-full px-3 text-xs md:inline-flex lg:px-3.5"
-            >
-              <Icon icon={Store} className="h-4 w-4" aria-hidden />
-              <span className="hidden lg:inline">{t("startSelling")}</span>
-            </button>
           )}
-          <MoreMenuButton />
+          <div className="hidden md:block">
+            <MoreMenuButton />
+          </div>
         </nav>
       </div>
       <div className="hidden border-t border-border/70 lg:block">
@@ -265,9 +262,13 @@ export function Header() {
         <label className="sr-only" htmlFor="site-search-mobile">{t("searchAria")}</label>
         <input id="site-search-mobile" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("search")} />
       </form>
-      <Suspense>
-        <CategoryBar cats={cats} />
-      </Suspense>
+      {showCats && (
+        <div className="hidden md:block">
+          <Suspense>
+            <CategoryBar cats={cats} />
+          </Suspense>
+        </div>
+      )}
       <NavDrawer open={menu} onClose={() => setMenu(false)} />
     </header>
   );

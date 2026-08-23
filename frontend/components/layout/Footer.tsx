@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
-import { useAuthModal } from "@/hooks/useAuthModal";
 import { Logo } from "@/components/brand/Logo";
 
 export function Footer() {
   const { t } = useI18n();
-  const { open } = useAuthModal();
   return (
     <footer className="mt-24 hidden bg-slate-950 pb-10 pt-16 text-slate-300 md:block">
       <div className="container-n grid gap-12 md:grid-cols-4">
@@ -26,10 +24,11 @@ export function Footer() {
           </div>
         </div>
         <div>
-          <p className="text-sm font-semibold text-white">{t("seller")}</p>
+          <p className="text-sm font-semibold text-white">{t("help")}</p>
           <div className="mt-4 flex flex-col gap-2.5 text-sm">
-            <button type="button" onClick={() => open("register")} className="text-left hover:text-white">{t("startSelling")}</button>
-            <Link href="/seller" className="hover:text-white">{t("sellerPanel")}</Link>
+            <Link href="/rules" className="hover:text-white">{t("rules")}</Link>
+            <Link href="/orders" className="hover:text-white">{t("orders")}</Link>
+            <Link href="/chat" className="hover:text-white">{t("chat")}</Link>
           </div>
         </div>
         <div>

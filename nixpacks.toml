@@ -3,6 +3,10 @@ providers = ["node"]
 [variables]
 NIXPACKS_NODE_VERSION = "20"
 NPM_CONFIG_PRODUCTION = "false"
+NEXT_TELEMETRY_DISABLED = "1"
+NEXT_PUBLIC_API_URL = ""
+API_INTERNAL_URL = "http://127.0.0.1:4000"
+NODE_OPTIONS = "--max-old-space-size=4096"
 
 [phases.setup]
 nixPkgs = ["nodejs_20", "openssl"]

@@ -6,15 +6,24 @@ import { routeParam, slugify } from "../utils/helpers";
 
 let catCache: { at: number; data: unknown } | null = null;
 
+function bustCatCache() {
+  catCache = null;
+}
+
 export async function listCategories(_req: AuthedRequest, res: Response) {
   const now = Date.now();
-  if (catCache && now - catCache.at < 30_000) return res.json(catCache.data);
+  if (catCache && now - catCache.at < 90_000) {
+    res.setHeader("Cache-Control", "public, max-age=45, s-maxage=90, stale-while-revalidate=180");
+    return res.json(catCache.data);
+  }
   const items = await prisma.category.findMany({
-    include: { children: true, _count: { select: { products: true } } },
+    where: { parentId: null },
+    select: { id: true, name: true, slug: true, image: true, description: true, parentId: true },
     orderBy: { name: "asc" },
   });
-  const data = { items: items.filter((c) => !c.parentId) };
+  const data = { items };
   catCache = { at: now, data };
+  res.setHeader("Cache-Control", "public, max-age=45, s-maxage=90, stale-while-revalidate=180");
   return res.json(data);
 }
 
@@ -27,15 +36,23 @@ export const categorySchema = z.object({
 
 export async function createCategory(req: AuthedRequest, res: Response) {
   const data = req.body as z.infer<typeof categorySchema>;
+  const root = slugify(data.name) || `cat-${Date.now()}`;
+  let slug = root;
+  let n = 0;
+  while (await prisma.category.findUnique({ where: { slug } })) {
+    n += 1;
+    slug = `${root}-${n}`;
+  }
   const category = await prisma.category.create({
     data: {
-      name: data.name,
-      slug: slugify(data.name),
+      name: data.name.trim(),
+      slug,
       image: data.image,
       description: data.description,
       parentId: data.parentId || null,
     },
   });
+  bustCatCache();
   return res.status(201).json(category);
 }
 
@@ -50,10 +67,19 @@ export async function updateCategory(req: AuthedRequest, res: Response) {
       parentId: data.parentId,
     },
   });
+  bustCatCache();
   return res.json(category);
 }
 
 export async function deleteCategory(req: AuthedRequest, res: Response) {
-  await prisma.category.delete({ where: { id: routeParam(req.params.id) } });
+  const id = routeParam(req.params.id);
+  const count = await prisma.product.count({ where: { categoryId: id } });
+  if (count > 0) {
+    return res.status(409).json({
+      message: `Аввал ${count} молро аз ин категория нест кунед ё ба категорияи дигар кӯчонед`,
+    });
+  }
+  await prisma.category.delete({ where: { id } });
+  bustCatCache();
   return res.json({ ok: true });
 }

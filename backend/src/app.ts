@@ -7,7 +7,6 @@ import { config } from "./config";
 import { isAllowedOrigin } from "./lib/origins";
 import { rateLimit } from "./middleware/rateLimit";
 import { errorHandler, notFound } from "./middleware/error";
-import { ah } from "./utils/asyncHandler";
 import { authRouter } from "./routes/auth.routes";
 import { productRouter } from "./routes/product.routes";
 import { categoryRouter } from "./routes/category.routes";
@@ -35,8 +34,20 @@ export function createApp() {
   );
   app.use(cookieParser());
   app.use(express.json({ limit: "2mb" }));
-  app.use("/uploads", express.static(path.resolve(config.uploadDir)));
-  app.use(ah(rateLimit({ windowSec: 60, max: 200, prefix: "global" })));
+  app.use("/uploads", express.static(path.resolve(config.uploadDir), { maxAge: "7d", etag: true }));
+  const limiter = rateLimit({ windowSec: 60, max: 200, prefix: "global" });
+  app.use((req, res, next) => {
+    if (
+      req.method === "GET" &&
+      (req.path === "/api/health" ||
+        req.path === "/api/categories" ||
+        req.path === "/api/products/home/sections" ||
+        req.path === "/api/products/deals")
+    ) {
+      return next();
+    }
+    return limiter(req, res, next);
+  });
 
   app.get("/api/health", (_req, res) => res.json({ ok: true, name: "Nurov Marketplace API" }));
 
