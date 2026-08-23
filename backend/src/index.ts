@@ -1,26 +1,40 @@
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
 
-function bootError(err: unknown) {
-  const app = express();
-  app.use(express.json());
-  const message = err instanceof Error ? err.stack || err.message : String(err);
-  console.error("API boot failed:", message);
-  app.use((req: Request, res: Response, _next: NextFunction) => {
-    if (req.path === "/api/health") {
-      return res.json({ ok: false, name: "Nurov Marketplace API", error: message.slice(0, 800) });
-    }
-    return res.status(500).json({ message: message.slice(0, 400) });
+const app = express();
+app.use(express.json({ limit: "2mb" }));
+
+app.get("/api/health", (_req, res) => {
+  res.json({
+    ok: true,
+    name: "Nurov Marketplace API",
+    backend: true,
   });
-  return app;
-}
+});
 
-let app: express.Express;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  app = require("./app").createApp();
-} catch (err) {
-  app = bootError(err);
-}
+let full: express.Express | null = null;
+let loadError: string | null = null;
+
+app.use(async (req, res, next) => {
+  if (req.path === "/api/health") return next();
+
+  if (!full && !loadError) {
+    try {
+      const mod = await import("./app");
+      full = mod.createApp();
+    } catch (err) {
+      loadError = err instanceof Error ? err.stack || err.message : String(err);
+      console.error("full API load failed:", loadError);
+    }
+  }
+
+  if (loadError || !full) {
+    return res.status(500).json({
+      message: loadError || "Backend load failed",
+    });
+  }
+
+  return full(req, res, next);
+});
 
 export default app;
 

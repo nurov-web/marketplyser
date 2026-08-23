@@ -8,14 +8,7 @@
       "root": "backend/",
       "framework": "express",
       "entrypoint": "src/index.ts",
-      "buildCommand": "npx prisma generate",
-      "functions": {
-        "src/index.ts": {
-          "includeFiles": "{prisma/**,node_modules/.prisma/client/**,node_modules/@prisma/client/**}",
-          "maxDuration": 30,
-          "memory": 1024
-        }
-      }
+      "buildCommand": "npx prisma generate"
     }
   },
   "rewrites": [
