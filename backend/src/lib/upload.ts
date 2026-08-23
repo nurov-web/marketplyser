@@ -5,8 +5,10 @@ import { v2 as cloudinary } from "cloudinary";
 import { config } from "../config";
 
 const uploadPath = path.resolve(config.uploadDir);
-if (!fs.existsSync(uploadPath)) {
+try {
   fs.mkdirSync(uploadPath, { recursive: true });
+} catch {
+  /* Vercel: /var/task is read-only; /tmp is used via UPLOAD_DIR */
 }
 
 const storage = multer.diskStorage({

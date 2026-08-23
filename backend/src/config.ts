@@ -17,7 +17,7 @@ export const config = {
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:3000",
   cookieSameSite: (process.env.COOKIE_SAMESITE || "lax").toLowerCase(),
   cloudinaryUrl: process.env.CLOUDINARY_URL || "",
-  uploadDir: process.env.UPLOAD_DIR || "uploads",
+  uploadDir: process.env.UPLOAD_DIR || (process.env.VERCEL ? "/tmp/uploads" : "uploads"),
   bitrixWebhook: process.env.BITRIX_WEBHOOK_URL || "",
 };
 
