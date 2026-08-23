@@ -1,52 +1,30 @@
-import http from "http";
-import { assertProductionSecrets, config } from "./config";
-import { createApp } from "./app";
-import { initSocket } from "./socket";
-import { prisma } from "./lib/prisma";
-import { ensureBootstrapUsers } from "./bootstrap";
+import express, { NextFunction, Request, Response } from "express";
 
-async function ensureCoupons() {
-  const count = await prisma.coupon.count();
-  if (count > 0) return;
-  const week = new Date();
-  week.setDate(week.getDate() + 14);
-  await prisma.coupon.createMany({
-    data: [
-      { code: "NUROV10", type: "PERCENT", value: 10, minSubtotal: 50, maxUses: 999, active: true, expiresAt: week },
-      { code: "SALE20", type: "PERCENT", value: 20, minSubtotal: 200, maxUses: 200, active: true, expiresAt: week },
-      { code: "WELCOME", type: "FIXED", value: 15, minSubtotal: 30, maxUses: 999, active: true, expiresAt: week },
-    ],
+function bootError(err: unknown) {
+  const app = express();
+  app.use(express.json());
+  const message = err instanceof Error ? err.stack || err.message : String(err);
+  console.error("API boot failed:", message);
+  app.use((req: Request, res: Response, _next: NextFunction) => {
+    if (req.path === "/api/health") {
+      return res.json({ ok: false, name: "Nurov Marketplace API", error: message.slice(0, 800) });
+    }
+    return res.status(500).json({ message: message.slice(0, 400) });
   });
+  return app;
 }
 
-async function bootstrap() {
-  await ensureBootstrapUsers().catch((e) => console.error("user bootstrap failed", e));
-  await ensureCoupons().catch((e) => console.error("coupon bootstrap failed", e));
+let app: express.Express;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  app = require("./app").createApp();
+} catch (err) {
+  app = bootError(err);
 }
 
-const app = createApp();
 export default app;
 
-try {
-  assertProductionSecrets();
-} catch (err) {
-  console.error((err as Error).message);
-  if (!process.env.VERCEL) process.exit(1);
-}
-
 if (!process.env.VERCEL) {
-  const server = http.createServer(app);
-  initSocket(server);
-  server.listen(config.port, "0.0.0.0", () => {
-    console.log(`Nurov API → http://0.0.0.0:${config.port}`);
-    void bootstrap();
-  });
-
-  async function shutdown() {
-    await prisma.$disconnect();
-    server.close(() => process.exit(0));
-  }
-
-  process.on("SIGINT", shutdown);
-  process.on("SIGTERM", shutdown);
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require("./listen").startLocal(app);
 }

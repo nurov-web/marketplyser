@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import path from "path";
 import { config } from "./config";
+import { prisma } from "./lib/prisma";
 import { isAllowedOrigin } from "./lib/origins";
 import { rateLimit } from "./middleware/rateLimit";
 import { errorHandler, notFound } from "./middleware/error";
@@ -22,7 +23,28 @@ import { adminRouter } from "./routes/admin.routes";
 import { miscRouter } from "./routes/misc.routes";
 import { couponRouter } from "./routes/coupon.routes";
 
+function catchAsyncErrors() {
+  try {
+    // Express 4 does not forward rejected promises to errorHandler.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Layer = require("express/lib/router/layer");
+    const orig = Layer.prototype.handle_request;
+    Layer.prototype.handle_request = function handleRequest(req: unknown, res: unknown, next: (err?: unknown) => void) {
+      if (this.handle.length > 3) return orig.apply(this, arguments);
+      try {
+        const result = this.handle(req, res, next);
+        if (result && typeof result.catch === "function") result.catch(next);
+      } catch (err) {
+        next(err);
+      }
+    };
+  } catch {
+    /* older express layouts */
+  }
+}
+
 export function createApp() {
+  catchAsyncErrors();
   const app = express();
   app.set("trust proxy", 1);
   app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
@@ -49,7 +71,22 @@ export function createApp() {
     return limiter(req, res, next);
   });
 
-  app.get("/api/health", (_req, res) => res.json({ ok: true, name: "Nurov Marketplace API" }));
+  app.get("/api/health", async (_req, res) => {
+    let db = "skipped";
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      db = "ok";
+    } catch (err) {
+      db = err instanceof Error ? err.message : String(err);
+    }
+    res.json({
+      ok: db === "ok",
+      name: "Nurov Marketplace API",
+      db,
+      hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+      hasDirectUrl: Boolean(process.env.DIRECT_URL),
+    });
+  });
 
   app.use("/api/auth", authRouter);
   app.use("/api/products", productRouter);
