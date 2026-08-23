@@ -8,7 +8,12 @@
       "root": "backend/",
       "framework": "express",
       "entrypoint": "src/index.ts",
-      "buildCommand": "npx prisma generate && npx prisma migrate deploy"
+      "buildCommand": "npx prisma generate",
+      "functions": {
+        "src/index.ts": {
+          "includeFiles": "{prisma/migrations/**,src/lib/init.sql}"
+        }
+      }
     }
   },
   "rewrites": [
