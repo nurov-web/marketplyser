@@ -34,11 +34,7 @@ try {
   if (!process.env.VERCEL) process.exit(1);
 }
 
-const isVercelBuild = Boolean(process.env.VERCEL && process.env.CI);
-
-if (process.env.VERCEL) {
-  if (!isVercelBuild) void bootstrap();
-} else {
+if (!process.env.VERCEL) {
   const server = http.createServer(app);
   initSocket(server);
   server.listen(config.port, "0.0.0.0", () => {

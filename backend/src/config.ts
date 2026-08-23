@@ -1,6 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+if (!process.env.DIRECT_URL && process.env.DATABASE_URL) {
+  process.env.DIRECT_URL = process.env.DATABASE_URL;
+}
+
 export const config = {
   port: Number(process.env.PORT || 4000),
   nodeEnv: process.env.NODE_ENV || "development",
