@@ -21,6 +21,8 @@ app.use(async (req, res, next) => {
     try {
       const mod = await import("./app");
       full = mod.createApp();
+      const { ensureBootstrapUsers } = await import("./bootstrap");
+      void ensureBootstrapUsers().catch((e) => console.error("bootstrap failed", e));
     } catch (err) {
       loadError = err instanceof Error ? err.stack || err.message : String(err);
       console.error("full API load failed:", loadError);
