@@ -11,7 +11,8 @@
       "buildCommand": "npx prisma generate",
       "functions": {
         "src/index.ts": {
-          "includeFiles": "{prisma/migrations/**,src/lib/init.sql}"
+          "includeFiles": "{prisma/migrations/**,src/lib/init.sql}",
+          "maxDuration": 60
         }
       }
     }

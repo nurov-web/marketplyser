@@ -25,6 +25,8 @@ app.use(async (req, res, next) => {
       const { ensureBootstrapUsers } = await import("./bootstrap");
       await ensureSchema();
       await ensureBootstrapUsers();
+      const { ensureCatalog } = await import("./catalog");
+      await ensureCatalog();
     } catch (err) {
       loadError = err instanceof Error ? err.stack || err.message : String(err);
       console.error("full API load failed:", loadError);

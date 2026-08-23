@@ -54,6 +54,7 @@ export function ProductCard({ product, priority = false }: { product: Product; p
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : "low"}
               decoding="async"
+              referrerPolicy="no-referrer"
               className="h-full w-full object-cover"
             />
           )}

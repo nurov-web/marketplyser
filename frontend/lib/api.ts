@@ -71,21 +71,9 @@ export function getOnce<T>(path: string): Promise<T> {
   return p;
 }
 
-export function mediaUrl(url?: string | null, size: "sm" | "lg" = "sm") {
+export function mediaUrl(url?: string | null, _size: "sm" | "lg" = "sm") {
   if (!url) return "";
-  if (url.startsWith("http") && url.includes("images.unsplash.com")) {
-    try {
-      const u = new URL(url);
-      u.searchParams.set("auto", "format");
-      u.searchParams.set("fit", "crop");
-      u.searchParams.set("w", size === "sm" ? "360" : "800");
-      u.searchParams.set("q", "65");
-      return u.toString();
-    } catch {
-      return url;
-    }
-  }
-  if (url.startsWith("http")) return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
   return `${API}${url}`;
 }
 

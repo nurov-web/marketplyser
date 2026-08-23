@@ -170,6 +170,7 @@ export default function ProductPage() {
                 <img
                   src={mediaUrl(images[active].url, "lg")}
                   alt={p.name}
+                  referrerPolicy="no-referrer"
                   className="h-full w-full object-cover motion-safe:transition-opacity motion-safe:duration-200"
                 />
               ) : (
