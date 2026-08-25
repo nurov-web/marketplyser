@@ -2,31 +2,67 @@
 
 import { useEffect, useState } from "react";
 import { api, money } from "@/lib/api";
+import { AdminCard, AdminPageHeader, EmptyState, StatusBadge } from "@/components/admin/ui";
 import type { Order } from "@/types";
 
 export default function AdminOrders() {
   const [items, setItems] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    api<{ items: Order[] }>("/api/admin/orders").then((d) => setItems(d.items)).catch(() => {});
+    api<{ items: Order[] }>("/api/admin/orders")
+      .then((d) => setItems(d.items))
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
   }, []);
+
   return (
     <div>
-      <h1 className="text-2xl font-bold">Orders</h1>
-      <div className="mt-4 overflow-x-auto rounded-2xl bg-white shadow-soft">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b text-slate-500"><tr><th className="p-3">#</th><th>User</th><th>Status</th><th>Total</th></tr></thead>
-          <tbody>
+      <AdminPageHeader title="Фармоишҳо" description="Рӯйхати ҳамаи фармоишҳо ва ҳолати онҳо." />
+
+      {loading && <div className="mt-6 skeleton h-48 rounded-2xl" />}
+
+      {!loading && !items.length && (
+        <EmptyState className="mt-6" title="Фармоиш нест" hint="Вақте харидорон фармоиш диҳанд, ин ҷо пайдо мешавад." />
+      )}
+
+      {!loading && items.length > 0 && (
+        <>
+          <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-border/80 bg-white shadow-soft md:block">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-border bg-slate-50/80 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="p-4">Рақам</th>
+                  <th className="p-4">Мизоҷ</th>
+                  <th className="p-4">Ҳолат</th>
+                  <th className="p-4 text-right">Ҷамъ</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {items.map((o) => (
+                  <tr key={o.id} className="hover:bg-slate-50/50">
+                    <td className="p-4 font-semibold tabular-nums">#{o.number}</td>
+                    <td className="p-4">{o.fullName}</td>
+                    <td className="p-4"><StatusBadge status={o.status} /></td>
+                    <td className="p-4 text-right font-semibold tabular-nums">{money(o.total)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <ul className="mt-6 space-y-3 md:hidden">
             {items.map((o) => (
-              <tr key={o.id} className="border-b">
-                <td className="p-3">{o.number}</td>
-                <td>{o.fullName}</td>
-                <td>{o.status}</td>
-                <td>{money(o.total)}</td>
-              </tr>
+              <AdminCard key={o.id} className="flex flex-wrap items-center justify-between gap-2">
+                <span className="font-semibold tabular-nums">#{o.number}</span>
+                <StatusBadge status={o.status} />
+                <span className="text-sm text-muted-foreground">{o.fullName}</span>
+                <span className="font-semibold tabular-nums">{money(o.total)}</span>
+              </AdminCard>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </ul>
+        </>
+      )}
     </div>
   );
 }

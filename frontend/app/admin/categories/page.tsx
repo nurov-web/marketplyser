@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { toast } from "@/components/ui/Toast";
+import { AdminCard, AdminPageHeader, EmptyState } from "@/components/admin/ui";
 import type { Category } from "@/types";
 
 export default function AdminCategories() {
@@ -25,7 +26,7 @@ export default function AdminCategories() {
     e.preventDefault();
     setError("");
     if (name.trim().length < 2) {
-      setError("Номи категорияро нависед");
+      setError("Номи категорияро нависед (ҳадди ақал 2 ҳарф)");
       return;
     }
     setBusy(true);
@@ -58,42 +59,51 @@ export default function AdminCategories() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Категорияҳо</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Танҳо Admin категория илова ва нест мекунад.</p>
+      <AdminPageHeader
+        title="Категорияҳо"
+        description="Категорияҳо дар каталог ва ҷустуҷӯ намоиш дода мешаванд. Пеш аз мол, категория созед."
+      />
 
-      <form className="mt-5 max-w-xl space-y-3 rounded-2xl bg-white p-4 shadow-soft sm:p-5" onSubmit={create}>
-        <label className="block text-sm font-semibold">
-          Номи категория
-          <input className="mt-1.5" placeholder="Масалан: Телефонҳо" value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
-        <label className="block text-sm font-semibold">
-          Тавсиф (ихтиёрӣ)
-          <input className="mt-1.5" placeholder="Кӯтоҳ нависед" value={description} onChange={(e) => setDescription(e.target.value)} />
-        </label>
-        {error && (
-          <p className="text-sm text-red-600" role="alert">
-            {error}
-          </p>
+      <AdminCard className="mt-6 max-w-xl">
+        <h2 className="text-sm font-bold text-ink">Категорияи нав</h2>
+        <form className="mt-4 space-y-3" onSubmit={create}>
+          <label className="block text-sm font-semibold text-ink">
+            Ном
+            <input className="mt-1.5" placeholder="Масалан: Телефонҳо" value={name} onChange={(e) => setName(e.target.value)} />
+          </label>
+          <label className="block text-sm font-semibold text-ink">
+            Тавсиф (ихтиёрӣ)
+            <input className="mt-1.5" placeholder="Кӯтоҳ тавсиф" value={description} onChange={(e) => setDescription(e.target.value)} />
+          </label>
+          {error && (
+            <p className="text-sm text-red-600" role="alert">{error}</p>
+          )}
+          <button type="submit" className="btn-primary min-h-11 w-full sm:w-auto" disabled={busy}>
+            {busy ? "Интизор..." : "Илова кардан"}
+          </button>
+        </form>
+      </AdminCard>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        {!items.length && (
+          <EmptyState title="Ҳанӯз категория нест" hint="Формаи болоро истифода баред." />
         )}
-        <button className="btn-primary min-h-12 w-full sm:w-auto" disabled={busy}>
-          {busy ? "Интизор..." : "Илова кардан"}
-        </button>
-      </form>
-
-      <ul className="mt-6 space-y-2">
-        {!items.length && <li className="rounded-xl bg-white p-6 text-center text-sm text-muted-foreground shadow-soft">Ҳанӯз категория нест</li>}
         {items.map((c) => (
-          <li key={c.id} className="flex flex-col gap-2 rounded-xl bg-white p-3 shadow-soft sm:flex-row sm:items-center sm:justify-between">
+          <AdminCard key={c.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="font-medium">{c.name}</p>
-              {c.description && <p className="text-xs text-muted-foreground">{c.description}</p>}
+              <p className="font-semibold text-ink">{c.name}</p>
+              {c.description && <p className="mt-1 text-xs leading-5 text-muted-foreground">{c.description}</p>}
             </div>
-            <button type="button" className="min-h-11 text-sm font-semibold text-red-700" onClick={() => remove(c)}>
+            <button
+              type="button"
+              className="min-h-10 shrink-0 text-sm font-semibold text-red-700 hover:underline"
+              onClick={() => remove(c)}
+            >
               Нест кардан
             </button>
-          </li>
+          </AdminCard>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
