@@ -263,11 +263,9 @@ export function Header() {
         <input id="site-search-mobile" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("search")} />
       </form>
       {showCats && (
-        <div className="hidden md:block">
-          <Suspense>
-            <CategoryBar cats={cats} />
-          </Suspense>
-        </div>
+        <Suspense>
+          <CategoryBar cats={cats} />
+        </Suspense>
       )}
       <NavDrawer open={menu} onClose={() => setMenu(false)} />
     </header>

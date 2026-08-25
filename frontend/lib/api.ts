@@ -22,11 +22,30 @@ async function rawFetch(path: string, init: RequestInit = {}) {
   if (init.body && !(init.body instanceof FormData) && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
-  return fetch(`${API}${path}`, {
-    ...init,
-    headers,
-    credentials: "include",
-  });
+  const method = (init.method || "GET").toUpperCase();
+  const retries = method === "GET" ? 2 : 0;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(`${API}${path}`, {
+        ...init,
+        headers,
+        credentials: "include",
+      });
+      if (res.status >= 500 && attempt < retries) {
+        await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+        continue;
+      }
+      return res;
+    } catch {
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+        continue;
+      }
+      throw new ApiError(0, "Пайвастшавӣ нест. Боз санҷед.");
+    }
+  }
+  throw new ApiError(0, "Пайвастшавӣ нест. Боз санҷед.");
 }
 
 let refreshing: Promise<boolean> | null = null;

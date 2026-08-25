@@ -3,22 +3,15 @@ import express from "express";
 const app = express();
 app.use(express.json({ limit: "2mb" }));
 
-app.get("/api/health", (_req, res) => {
-  res.json({
-    ok: true,
-    name: "Nurov Marketplace API",
-    backend: true,
-  });
-});
-
 let full: express.Express | null = null;
 let loadError: string | null = null;
+let initPromise: Promise<void> | null = null;
 
-app.use(async (req, res, next) => {
-  if (req.path === "/api/health") return next();
-
-  if (!full && !loadError) {
-    try {
+async function ensureReady() {
+  if (full) return;
+  if (loadError) throw new Error(loadError);
+  if (!initPromise) {
+    initPromise = (async () => {
       const mod = await import("./app");
       full = mod.createApp();
       const { ensureSchema } = await import("./lib/initSchema");
@@ -27,16 +20,50 @@ app.use(async (req, res, next) => {
       await ensureBootstrapUsers();
       const { ensureCatalog } = await import("./catalog");
       await ensureCatalog();
-    } catch (err) {
+    })().catch((err) => {
       loadError = err instanceof Error ? err.stack || err.message : String(err);
-      console.error("full API load failed:", loadError);
+      console.error("API init failed:", loadError);
+      initPromise = null;
+      throw err;
+    });
+  }
+  await initPromise;
+}
+
+if (process.env.VERCEL) {
+  void ensureReady().catch(() => {});
+}
+
+app.get("/api/health", async (_req, res) => {
+  let ready = Boolean(full);
+  if (!ready && !loadError) {
+    try {
+      await ensureReady();
+      ready = true;
+    } catch {
+      ready = false;
     }
   }
+  res.json({
+    ok: ready && !loadError,
+    name: "Nurov Marketplace API",
+    backend: true,
+    ready,
+    error: loadError ? loadError.slice(0, 200) : undefined,
+  });
+});
 
-  if (loadError || !full) {
-    return res.status(500).json({
-      message: loadError || "Backend load failed",
-    });
+app.use(async (req, res, next) => {
+  if (req.path === "/api/health") return next();
+
+  try {
+    await ensureReady();
+  } catch {
+    return res.status(500).json({ message: loadError || "Backend load failed" });
+  }
+
+  if (!full) {
+    return res.status(500).json({ message: loadError || "Backend load failed" });
   }
 
   return full(req, res, next);

@@ -1,6 +1,7 @@
 "use client";
 
-import { RotateCcw, Search, SlidersHorizontal, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { RotateCcw, Search, SlidersHorizontal, Sparkles, ChevronDown } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { RatingPicker } from "@/components/ui/RatingPicker";
 import { Icon } from "@/components/ui/Icon";
@@ -36,14 +37,31 @@ export function FilterPanel({
   onReset: () => void;
 }) {
   const reduce = useReducedMotion();
+  const [mobileOpen, setMobileOpen] = useState(false);
   const activeCount = [category, minPrice, maxPrice, minRating, brand].filter(Boolean).length;
 
   return (
-    <motion.aside
+    <>
+      <button
+        type="button"
+        className="mb-4 flex w-full min-h-11 items-center justify-between rounded-2xl border border-border bg-white px-4 py-3 text-sm font-semibold shadow-soft md:hidden"
+        onClick={() => setMobileOpen((v) => !v)}
+        aria-expanded={mobileOpen}
+      >
+        <span className="flex items-center gap-2">
+          <Icon icon={SlidersHorizontal} className="h-4 w-4 text-primary" aria-hidden />
+          Филтр
+          {activeCount > 0 && (
+            <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-ink">{activeCount}</span>
+          )}
+        </span>
+        <Icon icon={ChevronDown} className={`h-4 w-4 transition ${mobileOpen ? "rotate-180" : ""}`} aria-hidden />
+      </button>
+      <motion.aside
       initial={reduce ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      className="mb-6 overflow-hidden rounded-[1.75rem] border border-white/70 bg-white/90 shadow-lift backdrop-blur-md md:sticky md:top-24 md:mb-0 md:self-start"
+      className={`mb-6 overflow-hidden rounded-[1.75rem] border border-white/70 bg-white/90 shadow-lift backdrop-blur-md md:sticky md:top-24 md:mb-0 md:block md:self-start ${mobileOpen ? "block" : "hidden md:block"}`}
     >
       <div className="relative overflow-hidden px-5 py-5 text-white">
         <div className="absolute inset-0 hero-pattern" />
@@ -187,5 +205,6 @@ export function FilterPanel({
         </div>
       </div>
     </motion.aside>
+    </>
   );
 }

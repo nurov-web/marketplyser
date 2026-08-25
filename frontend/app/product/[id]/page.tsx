@@ -160,7 +160,7 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="container-n py-8 pb-28 md:pb-8">
+    <div className="container-n py-8 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] md:pb-8">
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
         <div>
           <div className="relative overflow-hidden rounded-2xl bg-white shadow-soft">
@@ -477,7 +477,7 @@ export default function ProductPage() {
         </section>
       )}
 
-      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border bg-white/95 px-4 py-2.5 shadow-lift backdrop-blur-xl md:hidden">
+      <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))] z-30 border-t border-border bg-white/95 px-4 py-2.5 shadow-lift backdrop-blur-xl md:hidden">
         <div className="flex items-center gap-3">
           <div className="min-w-0">
             <p className="text-lg font-bold tabular-nums leading-tight">{money(p.finalPrice)}</p>

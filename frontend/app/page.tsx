@@ -57,13 +57,13 @@ export default function HomePage() {
     <div>
       <section className="container-n mt-6">
         <div
-          className="hero-pattern relative overflow-hidden rounded-[2rem] px-6 py-14 text-white md:px-14 md:py-20"
+          className="hero-pattern relative overflow-hidden rounded-2xl px-5 py-10 text-white sm:rounded-[2rem] sm:px-6 sm:py-14 md:px-14 md:py-20"
           style={{ backgroundColor: "#0b1f4b" }}
         >
           <div className="relative grid items-center gap-10 md:grid-cols-[1.15fr_0.85fr]">
             <div>
               <p className="kicker">{t("heroKicker")}</p>
-              <h1 className="mt-4 max-w-xl text-4xl font-bold leading-[1.1] text-white md:text-5xl">{t("heroTitle")}</h1>
+              <h1 className="mt-4 max-w-xl text-3xl font-bold leading-[1.1] text-white sm:text-4xl md:text-5xl">{t("heroTitle")}</h1>
               <p className="mt-4 max-w-lg text-base leading-7 text-blue-100">{t("heroText")}</p>
               <form onSubmit={goSearch} className="relative mt-8 max-w-xl">
                 <label className="sr-only" htmlFor="hero-search">{t("searchAria")}</label>

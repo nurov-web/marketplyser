@@ -9,6 +9,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { ToastHost } from "@/components/ui/Toast";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { ApiWarmup } from "@/components/layout/ApiWarmup";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -16,10 +17,17 @@ export const metadata = {
   description: "Trusted marketplace for buyers and sellers",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="tg">
-      <body className="min-h-dvh pb-16 md:pb-0">
+      <body className="min-h-dvh pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0">
         <LanguageProvider>
           <AuthProvider>
             <AuthModalProvider>
@@ -37,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Footer />
               <BottomNav />
               <ToastHost />
+              <ApiWarmup />
               <AuthModal />
             </CartProvider>
             </AuthModalProvider>
