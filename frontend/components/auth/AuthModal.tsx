@@ -293,8 +293,21 @@ function RegisterInner({ next, onLogin, onDone }: { next: string; onLogin: () =>
     setError("");
     setBusy(true);
     try {
-      const supabase = getSupabase();
       const email = form.email.trim().toLowerCase();
+
+      // Бе калидҳои Supabase — сабти оддӣ (мисли пеш)
+      if (!isSupabaseConfigured()) {
+        await api("/api/auth/register", {
+          method: "POST",
+          body: JSON.stringify({ ...form, email, intent: "buy" }),
+        });
+        await refresh();
+        toast("Аккаунт сохта шуд");
+        onDone("/");
+        return;
+      }
+
+      const supabase = getSupabase();
       const { data, error: signErr } = await supabase.auth.signUp({
         email,
         password: form.password,
@@ -472,7 +485,11 @@ function RegisterInner({ next, onLogin, onDone }: { next: string; onLogin: () =>
       <h2 id="auth-title" className="text-xl font-bold">
         Сабти ном
       </h2>
-      <p className="text-sm text-muted-foreground">Барои харид ном, email ва парол кифоя аст. Пас аз сабт email-ро тасдиқ мекунед.</p>
+      <p className="text-sm text-muted-foreground">
+        {isSupabaseConfigured()
+          ? "Барои харид ном, email ва парол кифоя аст. Пас аз сабт email-ро тасдиқ мекунед."
+          : "Барои харид ном, email ва парол кифоя аст."}
+      </p>
       <GoogleButton busy={busy} onClick={withGoogle} label="Сабт бо Google" />
       <AuthDivider />
       <div className="grid grid-cols-2 gap-2">

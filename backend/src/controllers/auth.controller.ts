@@ -8,6 +8,7 @@ import { publicUser } from "../utils/helpers";
 import { AuthedRequest } from "../middleware/auth";
 import { setAuthCookies, clearAuthCookies } from "../lib/authCookies";
 import { assertSupabaseEmailConfirmed } from "../lib/supabaseAuth";
+import { config } from "../config";
 
 export const registerSchema = z.object({
   firstName: z.string().min(2).max(50),
@@ -15,8 +16,8 @@ export const registerSchema = z.object({
   email: z.string().email(),
   phone: z.string().min(7).max(20),
   password: z.string().min(6).max(100),
-  /** Access token пас аз supabase.auth.verifyOtp — бидуни тасдиқи email cookie намедиҳем. */
-  supabaseAccessToken: z.string().min(20),
+  /** Пас аз verifyOtp / агар Supabase фаъол бошад — ҳатмӣ. */
+  supabaseAccessToken: z.string().min(20).optional(),
   avatar: z.string().optional(),
   intent: z.enum(["buy", "sell"]).default("buy"),
   shopName: z.string().optional(),
@@ -32,19 +33,26 @@ export const loginSchema = z
   })
   .refine((d) => d.email || d.phone, { message: "Email ё телефон лозим аст" });
 
+function supabaseReady() {
+  return Boolean(config.supabaseUrl && config.supabaseAnonKey && !config.supabaseUrl.includes("YOUR_PROJECT"));
+}
+
 export async function register(req: AuthedRequest, res: Response) {
   const data = req.body as z.infer<typeof registerSchema>;
 
-  let confirmedEmail: string;
-  try {
-    ({ email: confirmedEmail } = await assertSupabaseEmailConfirmed(data.supabaseAccessToken));
-  } catch (e) {
-    const err = e as Error & { status?: number };
-    return res.status(err.status || 401).json({ message: err.message || "Тасдиқи email лозим аст" });
-  }
-
-  if (confirmedEmail !== data.email.toLowerCase()) {
-    return res.status(400).json({ message: "Email бо тасдиқ мувофиқат намекунад" });
+  if (supabaseReady()) {
+    if (!data.supabaseAccessToken) {
+      return res.status(400).json({ message: "Аввал email-ро тасдиқ кунед" });
+    }
+    try {
+      const { email: confirmedEmail } = await assertSupabaseEmailConfirmed(data.supabaseAccessToken);
+      if (confirmedEmail !== data.email.toLowerCase()) {
+        return res.status(400).json({ message: "Email бо тасдиқ мувофиқат намекунад" });
+      }
+    } catch (e) {
+      const err = e as Error & { status?: number };
+      return res.status(err.status || 401).json({ message: err.message || "Тасдиқи email лозим аст" });
+    }
   }
 
   const existing = await prisma.user.findFirst({
