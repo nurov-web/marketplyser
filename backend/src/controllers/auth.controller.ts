@@ -7,6 +7,7 @@ import { cache } from "../lib/redis";
 import { publicUser } from "../utils/helpers";
 import { AuthedRequest } from "../middleware/auth";
 import { setAuthCookies, clearAuthCookies } from "../lib/authCookies";
+import { assertSupabaseEmailConfirmed } from "../lib/supabaseAuth";
 
 export const registerSchema = z.object({
   firstName: z.string().min(2).max(50),
@@ -14,6 +15,8 @@ export const registerSchema = z.object({
   email: z.string().email(),
   phone: z.string().min(7).max(20),
   password: z.string().min(6).max(100),
+  /** Access token пас аз supabase.auth.verifyOtp — бидуни тасдиқи email cookie намедиҳем. */
+  supabaseAccessToken: z.string().min(20),
   avatar: z.string().optional(),
   intent: z.enum(["buy", "sell"]).default("buy"),
   shopName: z.string().optional(),
@@ -31,6 +34,19 @@ export const loginSchema = z
 
 export async function register(req: AuthedRequest, res: Response) {
   const data = req.body as z.infer<typeof registerSchema>;
+
+  let confirmedEmail: string;
+  try {
+    ({ email: confirmedEmail } = await assertSupabaseEmailConfirmed(data.supabaseAccessToken));
+  } catch (e) {
+    const err = e as Error & { status?: number };
+    return res.status(err.status || 401).json({ message: err.message || "Тасдиқи email лозим аст" });
+  }
+
+  if (confirmedEmail !== data.email.toLowerCase()) {
+    return res.status(400).json({ message: "Email бо тасдиқ мувофиқат намекунад" });
+  }
+
   const existing = await prisma.user.findFirst({
     where: { OR: [{ email: data.email.toLowerCase() }, { phone: data.phone }] },
   });
@@ -62,6 +78,63 @@ export async function register(req: AuthedRequest, res: Response) {
     seller,
     accessToken: access,
   });
+}
+
+export const oauthSchema = z.object({
+  supabaseAccessToken: z.string().min(20),
+});
+
+/** Ворид / сабт тавассути Google (Supabase OAuth) — бидуни рамзи email. */
+export async function oauth(req: AuthedRequest, res: Response) {
+  const { supabaseAccessToken } = req.body as z.infer<typeof oauthSchema>;
+
+  let authUser;
+  try {
+    authUser = await assertSupabaseEmailConfirmed(supabaseAccessToken);
+  } catch (e) {
+    const err = e as Error & { status?: number };
+    return res.status(err.status || 401).json({ message: err.message || "Воридшавӣ бо Google номуваффақ" });
+  }
+
+  let user = await prisma.user.findUnique({ where: { email: authUser.email } });
+
+  if (!user) {
+    const phone = `g${authUser.id.replace(/-/g, "").slice(0, 18)}`;
+    const passwordHash = await hashPassword(`oauth:${authUser.id}:${Date.now()}`);
+    user = await prisma.user.create({
+      data: {
+        firstName: authUser.firstName.slice(0, 50),
+        lastName: authUser.lastName.slice(0, 50),
+        email: authUser.email,
+        phone,
+        passwordHash,
+        avatar: authUser.avatar,
+        role: "USER",
+      },
+    });
+  }
+
+  if (user.accountStatus === "BANNED" || user.accountStatus === "SUSPENDED") {
+    return res.status(403).json({
+      message: "Аккаунт маҳдуд аст",
+      accountStatus: user.accountStatus,
+    });
+  }
+
+  if (authUser.avatar && user.avatar !== authUser.avatar) {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { avatar: authUser.avatar },
+    });
+  }
+
+  const payload = { userId: user.id, role: user.role };
+  const access = signAccessToken(payload);
+  const refresh = signRefreshToken(payload);
+  setAuthCookies(res, access, refresh);
+
+  const seller = await prisma.seller.findUnique({ where: { userId: user.id } });
+  return res.json({ user: publicUser(user), seller, accessToken: access });
 }
 
 export async function login(req: AuthedRequest, res: Response) {

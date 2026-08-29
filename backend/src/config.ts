@@ -19,6 +19,8 @@ export const config = {
   cloudinaryUrl: process.env.CLOUDINARY_URL || "",
   uploadDir: process.env.UPLOAD_DIR || (process.env.VERCEL ? "/tmp/uploads" : "uploads"),
   bitrixWebhook: process.env.BITRIX_WEBHOOK_URL || "",
+  supabaseUrl: process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  supabaseAnonKey: process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
 };
 
 export function assertProductionSecrets() {
