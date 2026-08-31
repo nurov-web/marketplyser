@@ -71,7 +71,7 @@ function GoogleButton({
         </span>
       </button>
       {!ready && (
-        <p className="text-center text-xs text-amber-700">Google ҳоло хомӯш аст — калидҳои Supabase дар Vercel лозиманд.</p>
+        <p className="text-center text-xs text-amber-700">Google ҳоло танзим мешавад — як дақиқа интизор шавед.</p>
       )}
     </div>
   );
