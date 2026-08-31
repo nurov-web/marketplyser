@@ -160,14 +160,25 @@ export default function HomePage() {
         ) : (
           <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-4 lg:grid-cols-8">
             {cats.map((c) => (
-              <Link key={c.id} href={`/search?category=${c.slug}`} className="group block overflow-hidden rounded-2xl bg-white shadow-soft">
+              <Link
+                key={c.id}
+                href={`/search?category=${c.slug}`}
+                className="group block overflow-hidden rounded-xl bg-white shadow-soft ring-1 ring-black/[0.04] transition hover:shadow-md"
+              >
                   <div className="aspect-square overflow-hidden bg-slate-100">
                     {c.image && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={mediaUrl(c.image)} alt={c.name} referrerPolicy="no-referrer" className="h-full w-full object-cover" loading="lazy" decoding="async" />
+                      <img
+                        src={mediaUrl(c.image)}
+                        alt={c.name}
+                        referrerPolicy="no-referrer"
+                        className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.03]"
+                        loading="lazy"
+                        decoding="async"
+                      />
                     )}
                   </div>
-                  <p className="px-2 py-2 text-center text-sm font-medium">{c.name}</p>
+                  <p className="px-2 py-2.5 text-center text-sm font-medium tracking-tight text-ink">{c.name}</p>
                 </Link>
             ))}
           </Stagger>

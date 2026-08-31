@@ -81,14 +81,14 @@ async function main() {
 
   const cats = await Promise.all(
     [
-      { name: "Телефонҳо", slug: "phones", image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400", description: "Смартфонҳо ва аксессуарҳо" },
-      { name: "Ноутбукҳо", slug: "laptops", image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400", description: "Ноутбук ва ультрабук" },
-      { name: "Компютерҳо", slug: "computers", image: "https://images.unsplash.com/photo-1587831990711-23ca6441447b?w=400", description: "ПК ва монитор" },
-      { name: "Аксессуарҳо", slug: "accessories", image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400", description: "Гӯшмонак, зарядка, ғилоф" },
-      { name: "Либос", slug: "clothes", image: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=400", description: "Либоси мардона ва занона" },
-      { name: "Пойафзор", slug: "shoes", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400", description: "Кефш ва кроссовка" },
-      { name: "Хона", slug: "home", image: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400", description: "Барои хона ва ошхона" },
-      { name: "Электроника", slug: "electronics", image: "https://images.unsplash.com/photo-1550009158-9ebf69182e96?w=400", description: "Гаджетҳо ва техника" },
+      { name: "Телефонҳо", slug: "phones", image: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&w=800&h=800&q=80", description: "Смартфонҳо ва аксессуарҳо" },
+      { name: "Ноутбукҳо", slug: "laptops", image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&h=800&q=80", description: "Ноутбук ва ультрабук" },
+      { name: "Компютерҳо", slug: "computers", image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=800&h=800&q=80", description: "ПК ва монитор" },
+      { name: "Аксессуарҳо", slug: "accessories", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&h=800&q=80", description: "Гӯшмонак, зарядка, ғилоф" },
+      { name: "Либос", slug: "clothes", image: "https://images.unsplash.com/photo-1489987707025-afc232f7ea62?auto=format&fit=crop&w=800&h=800&q=80", description: "Либоси мардона ва занона" },
+      { name: "Пойафзор", slug: "shoes", image: "https://images.unsplash.com/photo-1449505278894-297fdb3edbc1?auto=format&fit=crop&w=800&h=800&q=80", description: "Кефш ва кроссовка" },
+      { name: "Хона", slug: "home", image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=800&h=800&q=80", description: "Барои хона ва ошхона" },
+      { name: "Электроника", slug: "electronics", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&h=800&q=80", description: "Гаджетҳо ва техника" },
     ].map((c) => prisma.category.create({ data: c }))
   );
 

@@ -5,14 +5,14 @@ const img = (id: string) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&h=800&q=80`;
 
 const CATEGORIES = [
-  { name: "Телефонҳо", slug: "phones", image: img("photo-1511707171634-5f897ff02aa9"), description: "Смартфонҳо ва аксессуарҳо" },
-  { name: "Ноутбукҳо", slug: "laptops", image: img("photo-1517336714731-489689fd1ca8"), description: "Ноутбук ва ультрабук" },
-  { name: "Компютерҳо", slug: "computers", image: img("photo-1587831990711-23ca6441447b"), description: "ПК ва монитор" },
-  { name: "Аксессуарҳо", slug: "accessories", image: img("photo-1572569511254-d8f925fe2cbb"), description: "Гӯшмонак, зарядка, ғилоф" },
-  { name: "Либос", slug: "clothes", image: img("photo-1441984904996-e0b6ba687e04"), description: "Либоси мардона ва занона" },
-  { name: "Пойафзор", slug: "shoes", image: img("photo-1542291026-7eec264c27ff"), description: "Кефш ва кроссовка" },
-  { name: "Хона", slug: "home", image: img("photo-1556228453-efd6c1ff04f6"), description: "Барои хона ва ошхона" },
-  { name: "Электроника", slug: "electronics", image: img("photo-1550009158-9ebf69182e96"), description: "Гаджетҳо ва техника" },
+  { name: "Телефонҳо", slug: "phones", image: img("photo-1592899677977-9c10ca588bbd"), description: "Смартфонҳо ва аксессуарҳо" },
+  { name: "Ноутбукҳо", slug: "laptops", image: img("photo-1496181133206-80ce9b88a853"), description: "Ноутбук ва ультрабук" },
+  { name: "Компютерҳо", slug: "computers", image: img("photo-1527443224154-c4a3942d3acf"), description: "ПК ва монитор" },
+  { name: "Аксессуарҳо", slug: "accessories", image: img("photo-1505740420928-5e560c06d30e"), description: "Гӯшмонак, зарядка, ғилоф" },
+  { name: "Либос", slug: "clothes", image: img("photo-1489987707025-afc232f7ea62"), description: "Либоси мардона ва занона" },
+  { name: "Пойафзор", slug: "shoes", image: img("photo-1449505278894-297fdb3edbc1"), description: "Кефш ва кроссовка" },
+  { name: "Хона", slug: "home", image: img("photo-1556911220-bff31c812dba"), description: "Барои хона ва ошхона" },
+  { name: "Электроника", slug: "electronics", image: img("photo-1523275335684-37898b6baf30"), description: "Гаджетҳо ва техника" },
 ];
 
 const PRODUCTS: {

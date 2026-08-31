@@ -130,23 +130,23 @@ export function AuthModal() {
         >
           <button type="button" className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" aria-label="Пӯшидан" onClick={onClose} />
           <motion.div
-            initial={reduce ? false : { opacity: 0, y: 28, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={reduce ? undefined : { opacity: 0, y: 16, scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 420, damping: 34 }}
-            className="relative z-10 w-full overflow-hidden rounded-t-3xl bg-white shadow-lift sm:max-w-[380px] sm:rounded-3xl"
+            initial={reduce ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduce ? undefined : { opacity: 0, y: 8 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-10 w-full overflow-hidden rounded-t-2xl bg-white shadow-lift sm:max-w-[400px] sm:rounded-2xl"
           >
-            <div className="h-16 bg-gradient-to-r from-[#0b1f4b] via-primary to-sky-500" />
+            <div className="h-14 bg-[#0b1f4b]" />
             <button
               type="button"
               onClick={onClose}
-              className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
+              className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
               aria-label="Пӯшидан"
             >
               <X className="h-4 w-4" />
             </button>
-            <div className="-mt-6 px-5 pb-5">
-              <div className="rounded-2xl bg-white p-5 shadow-card">
+            <div className="-mt-5 px-5 pb-5">
+              <div className="rounded-xl bg-white p-5 shadow-card ring-1 ring-black/5">
                 {mode === "register" ? (
                   <RegisterInner
                     next={next}
@@ -555,7 +555,7 @@ function LoginInner({ next, onRegister, onDone }: { next: string; onRegister: ()
       await refresh();
       setDone(true);
       toast("Хуш омадед!");
-      setTimeout(() => onDone(next || "/"), reduce ? 0 : 600);
+      setTimeout(() => onDone(next || "/"), reduce ? 0 : 420);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Хато");
       setBusy(false);
@@ -576,10 +576,18 @@ function LoginInner({ next, onRegister, onDone }: { next: string; onRegister: ()
   return (
     <form onSubmit={submit} className="relative space-y-3">
       {done && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-white">
-          <CheckCircle2 className="h-12 w-12 text-primary" />
-          <p className="mt-2 font-semibold">Хуш омадед</p>
-        </div>
+        <motion.div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-white"
+          initial={reduce ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+            <CheckCircle2 className="h-7 w-7 text-primary" strokeWidth={1.75} />
+          </div>
+          <p className="mt-3 text-sm font-semibold tracking-tight text-ink">Хуш омадед</p>
+          <p className="mt-1 text-xs text-muted-foreground">Ба кабинет мегузаред…</p>
+        </motion.div>
       )}
       <h2 id="auth-title" className="text-xl font-bold">
         Воридшавӣ
