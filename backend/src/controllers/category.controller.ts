@@ -6,7 +6,7 @@ import { routeParam, slugify } from "../utils/helpers";
 
 let catCache: { at: number; data: unknown } | null = null;
 
-function bustCatCache() {
+export function bustCatCache() {
   catCache = null;
 }
 

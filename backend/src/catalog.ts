@@ -1,9 +1,11 @@
 import { prisma } from "./lib/prisma";
 import { invalidateHomeCache } from "./controllers/product.controller";
+import { bustCatCache } from "./controllers/category.controller";
 
 const img = (id: string) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&h=800&q=80`;
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&h=800&q=80&v=2`;
 
+/** v2 — аксҳои воқеии маҳсулот (на кӯҳна/бозича) */
 const CATEGORIES = [
   { name: "Телефонҳо", slug: "phones", image: img("photo-1592899677977-9c10ca588bbd"), description: "Смартфонҳо ва аксессуарҳо" },
   { name: "Ноутбукҳо", slug: "laptops", image: img("photo-1496181133206-80ce9b88a853"), description: "Ноутбук ва ультрабук" },
@@ -117,5 +119,6 @@ export async function ensureCatalog() {
   }
 
   invalidateHomeCache();
+  bustCatCache();
   console.log("Catalog ready: 25 products");
 }
