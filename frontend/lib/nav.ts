@@ -2,13 +2,14 @@ import type { Role } from "@/types";
 
 export type NavLink = {
   href: string;
-  key: "home" | "products" | "shops" | "orders" | "rules" | "compare" | "favorites" | "chat" | "profile" | "sellerPanel" | "adminPanel" | "crm";
+  key: "home" | "products" | "shops" | "services" | "orders" | "rules" | "compare" | "favorites" | "chat" | "profile" | "sellerPanel" | "adminPanel" | "crm";
   match?: (path: string) => boolean;
 };
 
 export const primaryNav: NavLink[] = [
   { href: "/", key: "home", match: (p) => p === "/" },
   { href: "/search", key: "products", match: (p) => p.startsWith("/search") || p.startsWith("/product") },
+  { href: "/services", key: "services", match: (p) => p.startsWith("/services") },
   { href: "/shops", key: "shops", match: (p) => p.startsWith("/shop") },
   { href: "/orders", key: "orders", match: (p) => p.startsWith("/orders") },
   { href: "/rules", key: "rules", match: (p) => p.startsWith("/rules") },

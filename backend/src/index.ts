@@ -20,6 +20,12 @@ async function ensureReady() {
       await ensureBootstrapUsers();
       const { ensureCatalog } = await import("./catalog");
       await ensureCatalog();
+      try {
+        const { ensureServices } = await import("./services");
+        await ensureServices();
+      } catch (e) {
+        console.warn("ensureServices:", e instanceof Error ? e.message : e);
+      }
     })().catch((err) => {
       loadError = err instanceof Error ? err.stack || err.message : String(err);
       console.error("API init failed:", loadError);

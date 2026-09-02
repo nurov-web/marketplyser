@@ -10,6 +10,7 @@ import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { ToastHost } from "@/components/ui/Toast";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { ApiWarmup } from "@/components/layout/ApiWarmup";
+import { PageTransition } from "@/components/motion/PageTransition";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -40,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Suspense>
                   <Breadcrumbs />
                 </Suspense>
-                {children}
+                <PageTransition>{children}</PageTransition>
               </main>
               <Footer />
               <BottomNav />

@@ -410,3 +410,62 @@ model CrmDeal {
   bitrixId  String?
   createdAt DateTime    @default(now())
 }
+
+enum ServiceProviderStatus {
+  PENDING
+  ACTIVE
+  BLOCKED
+}
+
+enum ServiceRequestStatus {
+  NEW
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model ServiceCategory {
+  id        String            @id @default(cuid())
+  name      String
+  slug      String            @unique
+  icon      String            @default("wrench")
+  createdAt DateTime          @default(now())
+  providers ServiceProvider[]
+}
+
+model ServiceProvider {
+  id          String                @id @default(cuid())
+  name        String
+  phone       String
+  city        String
+  categoryId  String
+  category    ServiceCategory       @relation(fields: [categoryId], references: [id])
+  description String
+  priceFrom   Decimal               @default(0)
+  isFeatured  Boolean               @default(false)
+  status      ServiceProviderStatus @default(PENDING)
+  sellerId    String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  requests    ServiceRequest[]
+
+  @@index([status])
+  @@index([city])
+  @@index([categoryId])
+}
+
+model ServiceRequest {
+  id           String               @id @default(cuid())
+  providerId   String
+  provider     ServiceProvider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  customerName String
+  phone        String
+  message      String               @default("")
+  status       ServiceRequestStatus @default(NEW)
+  bitrixLeadId String?
+  crmLeadId    String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([providerId])
+}

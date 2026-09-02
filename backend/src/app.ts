@@ -22,6 +22,7 @@ import { uploadRouter } from "./routes/upload.routes";
 import { adminRouter } from "./routes/admin.routes";
 import { miscRouter } from "./routes/misc.routes";
 import { couponRouter } from "./routes/coupon.routes";
+import { serviceRouter } from "./routes/service.routes";
 
 function catchAsyncErrors() {
   try {
@@ -63,6 +64,8 @@ export function createApp() {
       req.method === "GET" &&
       (req.path === "/api/health" ||
         req.path === "/api/categories" ||
+        req.path === "/api/services/categories" ||
+        req.path.startsWith("/api/services/providers") ||
         req.path === "/api/products/home/sections" ||
         req.path === "/api/products/deals")
     ) {
@@ -101,6 +104,7 @@ export function createApp() {
   app.use("/api/upload", uploadRouter);
   app.use("/api/admin", adminRouter);
   app.use("/api/coupons", couponRouter);
+  app.use("/api/services", serviceRouter);
   app.use("/api", miscRouter);
 
   app.use(notFound);

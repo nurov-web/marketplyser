@@ -9,6 +9,7 @@ const items = [
   { href: "/seller", label: "Dashboard" },
   { href: "/seller/products", label: "Маҳсулот" },
   { href: "/seller/orders", label: "Фармоишҳо" },
+  { href: "/seller/services", label: "Хизматҳо" },
   { href: "/seller/chat", label: "Чат" },
   { href: "/seller/profile", label: "Профил" },
 ];

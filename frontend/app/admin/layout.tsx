@@ -15,6 +15,7 @@ import {
   Store,
   Users,
   Wallet,
+  Wrench,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Icon } from "@/components/ui/Icon";
@@ -24,6 +25,7 @@ const items = [
   { href: "/admin/products", label: "Молҳо", short: "Мол", icon: Package },
   { href: "/admin/categories", label: "Категорияҳо", short: "Кат.", icon: FolderTree },
   { href: "/admin/orders", label: "Фармоишҳо", short: "Фарм.", icon: ShoppingBag },
+  { href: "/admin/services", label: "Хизматҳо", short: "Хизм.", icon: Wrench },
   { href: "/admin/users", label: "Корбарон", short: "Корб.", icon: Users },
   { href: "/admin/sellers", label: "Фурӯшандагон", short: "Seller", icon: Store },
   { href: "/admin/reviews", label: "Баррасиҳо", short: "Барраси", icon: MessageSquareWarning },
