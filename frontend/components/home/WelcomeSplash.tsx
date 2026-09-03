@@ -7,7 +7,7 @@ import { MapPinned, ShieldCheck, Truck } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Icon } from "@/components/ui/Icon";
 
-const KEY = "nurov-intro-v1";
+const KEY = "nurov-intro-v2";
 const TOTAL_MS = 5000;
 
 export function WelcomeSplash() {
