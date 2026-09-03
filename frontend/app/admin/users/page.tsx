@@ -33,6 +33,8 @@ export default function AdminUsers() {
   }
 
   const actions: { key: string; label: string; tone?: string }[] = [
+    { key: "makeCourier", label: "Доставчик" },
+    { key: "makeUser", label: "Харидор" },
     { key: "warn", label: "Огоҳӣ" },
     { key: "restrict", label: "Маҳдуд" },
     { key: "block", label: "Блок" },

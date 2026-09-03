@@ -12,6 +12,7 @@ import {
   Package,
   ScrollText,
   Store,
+  Truck,
 } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,6 +28,7 @@ export function MoreMenuButton({ className = "" }: { className?: string }) {
   const menuRef = useRef<HTMLDivElement>(null);
   const isAdmin = user?.role === "ADMIN";
   const isSeller = user?.role === "SELLER";
+  const isCourier = user?.role === "COURIER";
 
   useEffect(() => setMounted(true), []);
 
@@ -109,6 +111,14 @@ export function MoreMenuButton({ className = "" }: { className?: string }) {
                   <Icon icon={Store} className="h-4 w-4" aria-hidden />
                 </span>
                 {t("sellerPanel")}
+              </Link>
+            )}
+            {isCourier && (
+              <Link role="menuitem" href="/courier" onClick={() => setOpen(false)} className={item}>
+                <span className={iconWrap}>
+                  <Icon icon={Truck} className="h-4 w-4" aria-hidden />
+                </span>
+                {t("courierPanel")}
               </Link>
             )}
             <Link role="menuitem" href="/chat" onClick={() => setOpen(false)} className={item}>

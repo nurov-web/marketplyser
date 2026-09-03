@@ -63,6 +63,15 @@ export async function adminUserAction(req: AuthedRequest, res: Response) {
     return res.json({ ok: true });
   }
 
+  if (action === "makeCourier") {
+    await prisma.user.update({ where: { id: user.id }, data: { role: "COURIER" } });
+    return res.json({ ok: true, role: "COURIER" });
+  }
+  if (action === "makeUser") {
+    await prisma.user.update({ where: { id: user.id }, data: { role: "USER" } });
+    return res.json({ ok: true, role: "USER" });
+  }
+
   const map: Record<string, AccountStatus> = {
     block: "BANNED",
     unblock: "ACTIVE",

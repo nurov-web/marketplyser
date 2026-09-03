@@ -9,10 +9,6 @@ import {
   ChevronRight,
   Pause,
   Play,
-  ShoppingBag,
-  Sparkles,
-  Store,
-  Truck,
   Wrench,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -29,7 +25,8 @@ type Slide = {
   glow: string;
   statTitle: string;
   statText: string;
-  statIcon: typeof ShoppingBag;
+  photo: string;
+  photoCredit: string;
 };
 
 export function HeroSlideshow() {
@@ -50,7 +47,8 @@ export function HeroSlideshow() {
       glow: "rgba(56,189,248,0.35)",
       statTitle: t("heroStatTitle"),
       statText: t("heroStatText"),
-      statIcon: ShoppingBag,
+      photo: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=80",
+      photoCredit: t("heroPhotoShop"),
     },
     {
       id: "services",
@@ -63,7 +61,8 @@ export function HeroSlideshow() {
       glow: "rgba(52,211,153,0.35)",
       statTitle: t("servicesStatTitle"),
       statText: t("servicesStatText"),
-      statIcon: Wrench,
+      photo: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80",
+      photoCredit: t("heroPhotoService"),
     },
     {
       id: "shops",
@@ -76,7 +75,8 @@ export function HeroSlideshow() {
       glow: "rgba(251,191,36,0.35)",
       statTitle: t("shopsStatTitle"),
       statText: t("shopsStatText"),
-      statIcon: Store,
+      photo: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=900&q=80",
+      photoCredit: t("heroPhotoStore"),
     },
   ];
 
@@ -205,86 +205,32 @@ export function HeroSlideshow() {
 function Storefront({ slide, reduce }: { slide: Slide; reduce: boolean }) {
   return (
     <div className="hidden justify-end md:flex" aria-hidden>
-      <div className="relative">
+      <div className="relative ml-auto w-[280px]">
         <motion.div
-          className="absolute -top-3 left-4 right-4 z-10 flex h-3.5 overflow-hidden rounded-t-lg"
-          initial={reduce ? false : { y: -18, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          className="relative h-64 overflow-hidden rounded-[1.75rem] ring-1 ring-white/20"
+          initial={reduce ? false : { opacity: 0, x: 28 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         >
-          {Array.from({ length: 8 }).map((_, i) => (
-            <span
-              key={i}
-              className={`h-full flex-1 ${i % 2 === 0 ? "bg-white/90" : "bg-primary"}`}
-            />
-          ))}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={slide.photo} alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0b1f4b]/80 via-transparent to-transparent" />
+          <p className="absolute bottom-3 left-4 text-[11px] font-medium text-white/80">{slide.photoCredit}</p>
         </motion.div>
 
         <motion.div
-          className="relative flex h-52 w-52 items-center justify-center rounded-[2rem] bg-white/10 ring-1 ring-white/20 backdrop-blur-md"
-          initial={reduce ? false : { scale: 0.82, opacity: 0, rotate: -4 }}
-          animate={{ scale: 1, opacity: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 220, damping: 18, delay: 0.08 }}
+          className="absolute right-3 top-8 z-20 w-[11.5rem] rounded-2xl bg-white p-4 text-ink shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)] ring-1 ring-black/[0.06]"
+          initial={reduce ? false : { x: 18, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.45, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
         >
-          <motion.div
-            className="absolute left-4 top-8 h-12 w-10 rounded-lg bg-white/15 ring-1 ring-white/20"
-            animate={
-              reduce
-                ? undefined
-                : { y: [0, -8, 0], transition: { duration: 3.2, repeat: Infinity, ease: "easeInOut" } }
-            }
-          />
-          <motion.div
-            className="absolute right-5 top-12 h-9 w-14 rounded-lg bg-white/12 ring-1 ring-white/15"
-            animate={
-              reduce
-                ? undefined
-                : {
-                    y: [0, 7, 0],
-                    transition: { duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: 0.4 },
-                  }
-            }
-          />
-
-          <motion.div
-            className="relative z-[1] flex h-20 w-20 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/25"
-            animate={
-              reduce
-                ? undefined
-                : { y: [0, -6, 0], transition: { duration: 2.8, repeat: Infinity, ease: "easeInOut" } }
-            }
-          >
-            <Icon icon={slide.statIcon} className="h-10 w-10 text-white" />
-          </motion.div>
-
-          <motion.div
-            className="absolute -right-2 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-ink shadow-card"
-            initial={reduce ? false : { scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 320, damping: 16, delay: 0.45 }}
-          >
-            <Icon icon={Sparkles} className="h-4 w-4" />
-          </motion.div>
-
-          <motion.div
-            className="absolute -left-3 top-20 flex h-8 items-center gap-1.5 rounded-full bg-white px-2.5 text-[10px] font-semibold text-ink shadow-card"
-            initial={reduce ? false : { x: -16, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.5 }}
-          >
-            <Icon icon={Truck} className="h-3.5 w-3.5 text-primary" />
-            COD
-          </motion.div>
-        </motion.div>
-
-        <motion.div
-          className="absolute -left-4 bottom-6 z-20 min-w-[11.5rem] rounded-2xl bg-white px-4 py-3 text-ink shadow-card"
-          initial={reduce ? false : { y: 18, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.45, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <p className="text-xs font-semibold">{slide.statTitle}</p>
-          <p className="mt-0.5 text-[11px] leading-4 text-slate-500">{slide.statText}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">{slide.kicker}</p>
+          <p className="mt-1.5 text-sm font-semibold leading-5">{slide.statTitle}</p>
+          <p className="mt-1 text-[11px] leading-4 text-slate-500">{slide.statText}</p>
+          <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 text-[10px] font-semibold text-slate-600">
+            <span>COD</span>
+            <span>{slide.id === "services" ? "1 мин" : "Душанбе"}</span>
+          </div>
         </motion.div>
       </div>
     </div>

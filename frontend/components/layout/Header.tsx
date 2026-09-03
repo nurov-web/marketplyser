@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, GitCompare, Heart, LayoutDashboard, Menu, Search, ShoppingBag, Store, UserRound } from "lucide-react";
+import { Bell, GitCompare, Heart, LayoutDashboard, Menu, Search, ShoppingBag, Store, Truck, UserRound } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -32,7 +32,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
 
-  const panel = pathname.startsWith("/admin") || pathname.startsWith("/seller");
+  const panel = pathname.startsWith("/admin") || pathname.startsWith("/seller") || pathname.startsWith("/courier");
   const showCats = !panel && (pathname === "/" || pathname.startsWith("/search"));
 
   useEffect(() => {
@@ -237,6 +237,15 @@ export function Header() {
             >
               <Icon icon={LayoutDashboard} className="h-4 w-4" aria-hidden />
               <span className="hidden lg:inline">{t("adminPanel")}</span>
+            </Link>
+          )}
+          {user?.role === "COURIER" && (
+            <Link
+              href="/courier"
+              className="btn-primary hidden min-h-11 rounded-full px-3 text-xs md:inline-flex lg:px-3.5"
+            >
+              <Icon icon={Truck} className="h-4 w-4" aria-hidden />
+              <span className="hidden lg:inline">{t("courierPanel")}</span>
             </Link>
           )}
           {user?.role === "SELLER" && (

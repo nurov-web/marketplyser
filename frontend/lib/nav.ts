@@ -2,7 +2,7 @@ import type { Role } from "@/types";
 
 export type NavLink = {
   href: string;
-  key: "home" | "products" | "shops" | "services" | "orders" | "rules" | "compare" | "favorites" | "chat" | "profile" | "sellerPanel" | "adminPanel" | "crm";
+  key: "home" | "products" | "shops" | "services" | "orders" | "rules" | "compare" | "favorites" | "chat" | "profile" | "sellerPanel" | "adminPanel" | "crm" | "courierPanel";
   match?: (path: string) => boolean;
 };
 
@@ -25,6 +25,7 @@ export const extraNav: NavLink[] = [
 export function roleNav(role?: Role | null): NavLink[] {
   const items: NavLink[] = [];
   if (role === "SELLER") items.push({ href: "/seller", key: "sellerPanel" });
+  if (role === "COURIER") items.push({ href: "/courier", key: "courierPanel" });
   if (role === "ADMIN") {
     items.push({ href: "/admin/crm", key: "crm" });
     items.push({ href: "/admin", key: "adminPanel" });

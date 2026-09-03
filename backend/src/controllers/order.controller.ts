@@ -6,14 +6,15 @@ import { AuthedRequest } from "../middleware/auth";
 import { notify } from "../lib/notify";
 import { finalPrice, routeParam, toNum } from "../utils/helpers";
 import { couponDiscount, findValidCoupon } from "./coupon.controller";
+import { geocodeCity, jitter } from "../lib/geo";
 
 type Tx = typeof prisma;
 
 export const checkoutSchema = z.object({
-  fullName: z.string().min(3),
-  phone: z.string().min(7),
-  city: z.string().min(2),
-  address: z.string().min(5),
+  fullName: z.string().trim().min(3, "Номи пурраро нависед"),
+  phone: z.string().trim().min(7, "Рақами телефон нодуруст аст"),
+  city: z.string().trim().min(2, "Шаҳрро нависед"),
+  address: z.string().trim().min(5, "Суроғаро пурра нависед"),
   deliveryMethod: z.nativeEnum(DeliveryMethod).default("STANDARD"),
   paymentMethod: z.nativeEnum(PaymentMethod).default("COD"),
   saveAddress: z.boolean().optional(),
@@ -66,6 +67,9 @@ export async function placeOrder(req: AuthedRequest, res: Response) {
   const paymentStatus =
     data.paymentMethod === "COD" ? "PENDING" : "PAID";
 
+  const geo = geocodeCity(data.city);
+  const point = jitter(`${req.user!.id}-${Date.now()}`, geo.lat, geo.lng);
+
   const order = await prisma.$transaction(async (interactive) => {
     const tx = interactive as Tx;
     const last = await tx.order.aggregate({ _max: { number: true } });
@@ -85,6 +89,8 @@ export async function placeOrder(req: AuthedRequest, res: Response) {
         couponCode,
         total,
         status: "PENDING",
+        lat: point.lat,
+        lng: point.lng,
         items: {
           create: lines.map((i) => ({
             productId: i.productId,

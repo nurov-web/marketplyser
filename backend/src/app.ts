@@ -23,6 +23,7 @@ import { adminRouter } from "./routes/admin.routes";
 import { miscRouter } from "./routes/misc.routes";
 import { couponRouter } from "./routes/coupon.routes";
 import { serviceRouter } from "./routes/service.routes";
+import { courierRouter } from "./routes/courier.routes";
 
 function catchAsyncErrors() {
   try {
@@ -105,6 +106,7 @@ export function createApp() {
   app.use("/api/admin", adminRouter);
   app.use("/api/coupons", couponRouter);
   app.use("/api/services", serviceRouter);
+  app.use("/api/courier", courierRouter);
   app.use("/api", miscRouter);
 
   app.use(notFound);

@@ -13,6 +13,7 @@ enum Role {
   USER
   SELLER
   ADMIN
+  COURIER
 }
 
 enum AccountStatus {
@@ -112,6 +113,7 @@ model User {
   reports             Report[]           @relation("Reporter")
   moderationLogs      ModerationLog[]    @relation("TargetUser")
   issuedPenalties     ModerationLog[]    @relation("AdminActor")
+  courierOrders       Order[]            @relation("CourierOrders")
 }
 
 model Seller {
@@ -238,11 +240,18 @@ model Order {
   total          Decimal
   status         OrderStatus    @default(PENDING)
   cancelReason   String?
+  lat            Float?
+  lng            Float?
+  courierId      String?
+  courier        User?          @relation("CourierOrders", fields: [courierId], references: [id])
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
   items   OrderItem[]
   payment Payment?
+
+  @@index([courierId])
+  @@index([status])
 }
 
 model OrderItem {

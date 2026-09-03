@@ -20,6 +20,7 @@ import {
   Smartphone,
   Sofa,
   Store,
+  Truck,
   Watch,
   Laptop,
   type LucideIcon,
@@ -27,6 +28,7 @@ import {
 import { Icon } from "@/components/ui/Icon";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
+import { mediaUrl } from "@/lib/api";
 import type { Category } from "@/types";
 
 function ShoeIcon({ className }: { className?: string }) {
@@ -60,6 +62,24 @@ const ICONS: Record<string, LucideIcon> = {
 function CategoryGlyph({ slug, className }: { slug: string; className?: string }) {
   if (slug === "shoes") return <ShoeIcon className={className} />;
   return <Icon icon={ICONS[slug] || LayoutGrid} className={className} aria-hidden />;
+}
+
+function CategoryThumb({ cat, selected }: { cat: Category; selected?: boolean }) {
+  if (cat.image) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={mediaUrl(cat.image)}
+        alt=""
+        className={`h-8 w-8 rounded-full object-cover ring-1 ${selected ? "ring-white/40" : "ring-black/10"}`}
+      />
+    );
+  }
+  return (
+    <span className={`flex h-8 w-8 items-center justify-center rounded-full ${selected ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"}`}>
+      <CategoryGlyph slug={cat.slug} className="h-4 w-4" />
+    </span>
+  );
 }
 
 export function CategoryBar({ cats }: { cats: Category[] }) {
@@ -125,12 +145,8 @@ export function CategoryBar({ cats }: { cats: Category[] }) {
                   }`}
                 >
                   <span className="relative z-10">{c.name}</span>
-                  <span
-                    className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full transition duration-300 group-hover:scale-110 ${
-                      selected ? "bg-white/20 text-white" : "bg-slate-900/5 text-slate-700"
-                    }`}
-                  >
-                    <CategoryGlyph slug={c.slug} className="h-4 w-4" />
+                  <span className="relative z-10 transition duration-300 group-hover:scale-110">
+                    <CategoryThumb cat={c} selected={selected} />
                   </span>
                 </Link>
               </motion.div>
@@ -177,6 +193,7 @@ function MoreMenu({
   const [mounted, setMounted] = useState(false);
   const isAdmin = user?.role === "ADMIN";
   const isSeller = user?.role === "SELLER";
+  const isCourier = user?.role === "COURIER";
 
   useEffect(() => setMounted(true), []);
   useEffect(() => {
@@ -221,6 +238,14 @@ function MoreMenu({
           </span>
         </Link>
       )}
+      {isCourier && (
+        <Link role="menuitem" href="/courier" onClick={onPick} className={item}>
+          {t("courierPanel")}
+          <span className={iconWrap}>
+            <Icon icon={Truck} className="h-4 w-4" aria-hidden />
+          </span>
+        </Link>
+      )}
       <Link role="menuitem" href="/chat" onClick={onPick} className={item}>
         {t("chat")}
         <span className={iconWrap}>
@@ -260,7 +285,7 @@ function MoreMenu({
           >
             {c.name}
             <span className={iconWrap}>
-              <CategoryGlyph slug={c.slug} className="h-4 w-4" />
+              <CategoryThumb cat={c} />
             </span>
           </Link>
         );

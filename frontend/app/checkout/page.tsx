@@ -6,14 +6,18 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { api, money } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthModal } from "@/hooks/useAuthModal";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/Toast";
 import { Icon } from "@/components/ui/Icon";
+import { useI18n } from "@/lib/i18n";
 
 type Addr = { id: string; fullName: string; phone: string; city: string; address: string; isDefault: boolean };
 
 export default function CheckoutPage() {
   const { user, loading } = useAuth();
+  const { open } = useAuthModal();
+  const { t } = useI18n();
   const router = useRouter();
   const { items, subtotal, refresh } = useCart();
   const [error, setError] = useState("");
@@ -33,26 +37,33 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
-    if (!loading && !user) router.push("/login?next=/checkout");
-    if (user) {
-      setForm((f) => ({ ...f, fullName: `${user.firstName} ${user.lastName}`, phone: user.phone }));
-      api<{ items: Addr[] }>("/api/addresses")
-        .then((d) => {
-          setAddresses(d.items);
-          const def = d.items.find((a) => a.isDefault) || d.items[0];
-          if (def) {
-            setForm((f) => ({
-              ...f,
-              fullName: def.fullName,
-              phone: def.phone,
-              city: def.city,
-              address: def.address,
-            }));
-          }
-        })
-        .catch(() => {});
+    if (loading) return;
+    if (!user) {
+      open("login", { next: "/checkout" });
+      return;
     }
-  }, [user, loading, router]);
+    const name = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    setForm((f) => ({
+      ...f,
+      fullName: f.fullName || name,
+      phone: f.phone || (user.phone?.startsWith("g") ? "" : user.phone || ""),
+    }));
+    api<{ items: Addr[] }>("/api/addresses")
+      .then((d) => {
+        setAddresses(d.items);
+        const def = d.items.find((a) => a.isDefault) || d.items[0];
+        if (def) {
+          setForm((f) => ({
+            ...f,
+            fullName: def.fullName,
+            phone: def.phone,
+            city: def.city,
+            address: def.address,
+          }));
+        }
+      })
+      .catch(() => {});
+  }, [user, loading, open]);
 
   const deliveryFee = form.deliveryMethod === "EXPRESS" ? 15 : form.deliveryMethod === "PICKUP" ? 0 : 5;
   const payTotal = Math.max(0, subtotal + deliveryFee - couponOff);
@@ -75,8 +86,25 @@ export default function CheckoutPage() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!user) {
+      open("login", { next: "/checkout" });
+      setError(t("checkoutNeedLogin"));
+      return;
+    }
     if (!items.length) {
       setError("Сабад холӣ аст");
+      return;
+    }
+    if (form.fullName.trim().length < 3) {
+      setError("Номи пурраро нависед");
+      return;
+    }
+    if (form.phone.trim().length < 7) {
+      setError("Рақами телефон нодуруст аст");
+      return;
+    }
+    if (form.address.trim().length < 5) {
+      setError("Суроғаро пурра нависед");
       return;
     }
     setError("");
@@ -99,9 +127,14 @@ export default function CheckoutPage() {
   return (
     <div className="container-n py-8">
       <div className="mx-auto max-w-5xl">
-        <h1 className="text-2xl font-bold tracking-tight">Пардохт</h1>
-        <form onSubmit={submit} className="mt-6 grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_280px]">
-          <div className="space-y-4 rounded-2xl border border-border bg-white p-5 shadow-soft md:p-6">
+        <h1 className="text-2xl font-bold tracking-tight">{t("checkout")}</h1>
+        {!user && !loading && (
+          <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900" role="status">
+            {t("checkoutNeedLogin")}
+          </p>
+        )}
+        <form onSubmit={submit} className="mt-6 grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(240px,300px)]">
+          <div className="min-w-0 space-y-4 rounded-2xl border border-border bg-white p-5 shadow-soft md:p-6">
             {addresses.length > 0 && (
               <fieldset>
                 <legend className="mb-2 text-sm font-semibold text-ink">Суроғаҳои захирашуда</legend>
@@ -151,7 +184,9 @@ export default function CheckoutPage() {
               <input
                 required
                 type="tel"
+                inputMode="tel"
                 autoComplete="tel"
+                placeholder="+992 90 000 0000"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
               />
@@ -229,14 +264,14 @@ export default function CheckoutPage() {
               Суроғаро нигоҳ дор
             </label>
             {error && (
-              <p className="text-sm text-red-700" role="alert">
+              <p className="text-sm text-red-700" role="alert" tabIndex={-1}>
                 {error}
               </p>
             )}
           </div>
 
-          <aside className="h-fit rounded-2xl border border-border bg-white p-5 shadow-soft md:sticky md:top-24">
-            <h2 className="text-sm font-semibold text-ink">Фармоиш</h2>
+          <aside className="h-fit min-w-0 rounded-2xl border border-border bg-white p-5 shadow-soft md:sticky md:top-24">
+            <h2 className="text-sm font-semibold text-ink">{t("orders")}</h2>
             <div className="mt-3 space-y-2">
               {items.map((i) => (
                 <p key={i.id} className="flex justify-between gap-3 text-sm">
@@ -275,7 +310,7 @@ export default function CheckoutPage() {
               <span className="tabular-nums">{money(payTotal)}</span>
             </p>
             <button type="submit" className="btn-accent mt-5 w-full" disabled={busy || !items.length}>
-              {busy ? "Фиристода мешавад..." : "Фармоиш додан"}
+              {busy ? "Фиристода мешавад..." : t("checkout")}
             </button>
           </aside>
         </form>

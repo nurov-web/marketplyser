@@ -1,4 +1,4 @@
-export type Role = "USER" | "SELLER" | "ADMIN";
+export type Role = "USER" | "SELLER" | "ADMIN" | "COURIER";
 export type AccountStatus = "ACTIVE" | "WARNED" | "RESTRICTED" | "SUSPENDED" | "BANNED";
 export type SellerStatus = "PENDING" | "APPROVED" | "REJECTED" | "BLOCKED";
 export type OrderStatus = "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";

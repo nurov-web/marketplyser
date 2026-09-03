@@ -124,7 +124,7 @@ export default function ProfilePage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4, delay: 0.16, ease: enterEase }}
               >
-                <p className="kicker">{user.role === "ADMIN" ? "Admin" : user.role === "SELLER" ? "Seller" : "Профил"}</p>
+                <p className="kicker">{user.role === "ADMIN" ? "Admin" : user.role === "SELLER" ? "Seller" : user.role === "COURIER" ? "Доставчик" : "Профил"}</p>
                 <h1 className="mt-1 text-3xl text-white sm:text-4xl">
                   <StrokeText text={`${user.firstName} ${user.lastName}`} as="span" />
                 </h1>
@@ -136,6 +136,12 @@ export default function ProfilePage() {
                 <Link href="/admin" className="btn-primary text-sm">
                   <Icon icon={LayoutDashboard} className="h-4 w-4" aria-hidden />
                   Панели Admin
+                </Link>
+              )}
+              {user.role === "COURIER" && (
+                <Link href="/courier" className="btn-primary text-sm">
+                  <Icon icon={MapPin} className="h-4 w-4" aria-hidden />
+                  Панели расонидан
                 </Link>
               )}
               {user.role === "SELLER" && (

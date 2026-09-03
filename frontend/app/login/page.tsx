@@ -11,7 +11,7 @@ function LoginOpener() {
   const next = params.get("next") || "/";
   useEffect(() => {
     open("login", { next });
-    router.replace("/");
+    router.replace(next.startsWith("/") && !next.startsWith("//") ? next : "/");
   }, [open, router, next]);
   return <div className="min-h-[40vh]" />;
 }

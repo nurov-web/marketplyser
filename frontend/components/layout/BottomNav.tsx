@@ -11,7 +11,7 @@ export function BottomNav() {
   const pathname = usePathname();
   const { t } = useI18n();
   const { count } = useCart();
-  if (pathname.startsWith("/admin") || pathname.startsWith("/seller")) return null;
+  if (pathname.startsWith("/admin") || pathname.startsWith("/seller") || pathname.startsWith("/courier")) return null;
 
   const items = [
     { href: "/", label: t("home"), icon: Home },

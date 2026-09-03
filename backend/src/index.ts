@@ -26,6 +26,12 @@ async function ensureReady() {
       } catch (e) {
         console.warn("ensureServices:", e instanceof Error ? e.message : e);
       }
+      try {
+        const { ensureCourier } = await import("./lib/ensureCourier");
+        await ensureCourier();
+      } catch (e) {
+        console.warn("ensureCourier:", e instanceof Error ? e.message : e);
+      }
     })().catch((err) => {
       loadError = err instanceof Error ? err.stack || err.message : String(err);
       console.error("API init failed:", loadError);
