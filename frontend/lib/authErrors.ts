@@ -49,6 +49,15 @@ export function authErrorMessage(err: unknown, fallback = "Хато рух до�
   if (/signup.?disabled|signups.?not.?allowed/.test(text)) {
     return "Сабти ном ҳоло пӯшида аст.";
   }
+  if (/provider.?is.?not.?enabled|unsupported.?provider|validation_failed/.test(text)) {
+    return "Воридшавӣ бо Google ҳоло фаъол нест. Бо email ворид шавед.";
+  }
+  if (/code.?verifier|invalid.?request.*code/.test(text)) {
+    return "Воридшавӣ нимкора монд. Саҳифаро нав кунед ва боз кӯшиш кунед.";
+  }
+  if (/redirect|url.?not.?allowed/.test(text)) {
+    return "Суроғаи бозгашт иҷозат надорад. Бо email ворид шавед.";
+  }
   if (/email.?rate|email.?sending/.test(text)) {
     return "Нома фиристода нашуд. Каме баъд боз кӯшиш кунед.";
   }

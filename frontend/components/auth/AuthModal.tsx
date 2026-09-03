@@ -7,7 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Eye, EyeOff, Loader2, Mail, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { authErrorMessage } from "@/lib/authErrors";
-import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
+import { getEnabledProviders, getSupabase, isSupabaseConfigured } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { toast } from "@/components/ui/Toast";
@@ -37,6 +37,27 @@ async function startGoogleOAuth(nextPath = "/") {
   window.location.assign(data.url);
 }
 
+/** Undefined until the provider list arrives, so nothing flashes on screen. */
+function useGoogleEnabled() {
+  const [enabled, setEnabled] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured()) {
+      setEnabled(false);
+      return;
+    }
+    let alive = true;
+    getEnabledProviders()
+      .then((p) => alive && setEnabled(Boolean(p.google)))
+      .catch(() => alive && setEnabled(false));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  return enabled;
+}
+
 function GoogleButton({
   busy,
   onClick,
@@ -46,14 +67,15 @@ function GoogleButton({
   onClick: () => void;
   label?: string;
 }) {
-  const ready = isSupabaseConfigured();
+  const enabled = useGoogleEnabled();
+  if (!enabled) return null;
+
   return (
     <div className="space-y-1.5">
       <button
         type="button"
         onClick={onClick}
-        disabled={busy || !ready}
-        title={ready ? undefined : "Калидҳои Supabase дар Vercel лозиманд"}
+        disabled={busy}
         className="group relative flex min-h-[3.25rem] w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-[#4285F4] via-[#34A853] to-[#FBBC05] p-[2px] shadow-md transition hover:shadow-lg disabled:opacity-60"
       >
         <span className="flex h-full min-h-[3rem] w-full items-center justify-center gap-3 rounded-[0.9rem] bg-white px-4 transition group-hover:bg-slate-50">
@@ -70,18 +92,19 @@ function GoogleButton({
           <span className="text-[15px] font-bold tracking-tight text-slate-900">{busy ? "Интизор..." : label}</span>
         </span>
       </button>
-      {!ready && (
-        <p className="text-center text-xs text-amber-700">Google ҳоло танзим мешавад — як дақиқа интизор шавед.</p>
-      )}
     </div>
   );
 }
 
 function AuthDivider() {
+  const enabled = useGoogleEnabled();
+  if (!enabled) return null;
+
   return (
-    <div className="relative py-1 text-center text-xs text-muted-foreground">
-      <span className="relative z-10 bg-white px-2">ё</span>
-      <span className="absolute left-0 right-0 top-1/2 h-px bg-slate-200" aria-hidden />
+    <div className="flex items-center gap-3 py-1" aria-hidden>
+      <span className="h-px flex-1 bg-gradient-to-r from-transparent to-slate-200" />
+      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">ё</span>
+      <span className="h-px flex-1 bg-gradient-to-l from-transparent to-slate-200" />
     </div>
   );
 }
