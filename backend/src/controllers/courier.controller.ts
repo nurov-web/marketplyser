@@ -131,6 +131,7 @@ export async function listLoads(req: AuthedRequest, res: Response) {
     include: {
       items: { include: { product: { include: { images: { take: 1 } } } } },
       payment: true,
+      user: { select: { firstName: true, lastName: true, phone: true } },
     },
     orderBy: { createdAt: "desc" },
     take: 80,

@@ -11,14 +11,21 @@ import { TajikistanMap, type MapLoad } from "@/components/courier/TajikistanMap"
 import { toast } from "@/components/ui/Toast";
 
 type Load = MapLoad & {
-  fullName: string;
   phone: string;
   address: string;
   total: number | string;
   deliveryMethod: string;
   payment?: { method: string; status: string };
+  user?: { firstName: string; lastName: string; phone: string };
   items: { id: string; name: string; quantity: number; price: number | string; product?: { images?: { url: string }[] } }[];
 };
+
+function customerName(load: Load) {
+  if (load.fullName?.trim()) return load.fullName.trim();
+  const u = load.user;
+  if (u) return `${u.firstName} ${u.lastName}`.trim();
+  return "—";
+}
 
 export default function CourierPage() {
   const { user } = useAuth();
@@ -183,13 +190,12 @@ function CourierDesk() {
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)]">
       <section className="overflow-hidden rounded-3xl bg-[#c9d6b8] shadow-lift ring-1 ring-black/10">
         <div className="flex items-center justify-between bg-[#1e3a2a] px-5 py-3 text-white">
-          <p className="text-sm font-semibold">{t("tajikistanMap")}</p>
+          <p className="text-sm font-semibold">{t("deliveryPlaces")}</p>
           <p className="text-xs text-emerald-100">{t("tapLoad")}</p>
         </div>
         <div className="h-[420px] md:h-[560px]">
           <TajikistanMap
-            loads={loads}
-            origin={origin}
+            loads={loads.map((l) => ({ ...l, fullName: customerName(l) }))}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
@@ -198,21 +204,32 @@ function CourierDesk() {
 
       <aside className="flex min-h-[420px] flex-col rounded-3xl border border-border bg-white shadow-soft">
         <div className="border-b border-border px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">{t("nearest")}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">{t("orderedPeople")}</p>
           <h2 className="mt-1 text-lg font-bold text-ink">{t("courierTitle")}</h2>
         </div>
-        <ul className="max-h-40 overflow-y-auto border-b border-border">
+        <ul className="max-h-52 overflow-y-auto border-b border-border">
           {loads.map((l) => (
             <li key={l.id}>
               <button
                 type="button"
                 onClick={() => setSelectedId(l.id)}
-                className={`flex min-h-12 w-full items-center justify-between gap-3 px-5 text-left text-sm ${
-                  l.id === selectedId ? "bg-primary/5 font-semibold text-primary" : "text-slate-700 hover:bg-slate-50"
+                className={`flex min-h-12 w-full items-start justify-between gap-3 px-5 py-3 text-left ${
+                  l.id === selectedId ? "bg-primary/5 text-primary" : "text-slate-700 hover:bg-slate-50"
                 }`}
               >
-                <span className="truncate">#{l.number} · {l.city}</span>
-                <span className="shrink-0 tabular-nums text-xs text-slate-500">{l.km} {t("kmAway")}</span>
+                <span className="min-w-0">
+                  <span className={`block truncate text-sm ${l.id === selectedId ? "font-semibold" : "font-medium"}`}>
+                    {customerName(l)}
+                  </span>
+                  <span className="mt-0.5 block truncate text-xs text-slate-500">{l.phone}</span>
+                  <span className="mt-0.5 block truncate text-xs text-slate-500">
+                    {l.city}{l.address ? `, ${l.address}` : ""}
+                  </span>
+                </span>
+                <span className="shrink-0 pt-0.5 text-right text-xs tabular-nums text-slate-500">
+                  {l.km} {t("kmAway")}
+                  <span className="mt-0.5 block">#{l.number}</span>
+                </span>
               </button>
             </li>
           ))}
@@ -223,10 +240,10 @@ function CourierDesk() {
           <div className="flex flex-1 flex-col px-5 py-4">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">{t("customerOrder")}</p>
             <div className="mt-3 space-y-2 text-sm">
-              <p className="flex items-center gap-2 font-semibold text-ink">
-                <Icon icon={UserRound} className="h-4 w-4 text-slate-400" /> {selected.fullName}
+              <p className="flex items-center gap-2 text-lg font-bold text-ink">
+                <Icon icon={UserRound} className="h-5 w-5 text-slate-400" /> {customerName(selected)}
               </p>
-              <a className="flex items-center gap-2 text-primary" href={`tel:${selected.phone}`}>
+              <a className="flex items-center gap-2 font-medium text-primary" href={`tel:${selected.phone}`}>
                 <Icon icon={Phone} className="h-4 w-4" /> {selected.phone}
               </a>
               <p className="flex items-start gap-2 text-slate-600">
@@ -235,7 +252,7 @@ function CourierDesk() {
                   <span className="font-medium text-ink">{t("dropAt")}:</span> {selected.city}, {selected.address}
                 </span>
               </p>
-              <p className="flex items-center gap-2 text-slate-600">
+              <p className="flex items-center gap-2 text-xs text-slate-500">
                 <Icon icon={Navigation} className="h-4 w-4 text-slate-400" /> {selected.km} {t("kmAway")} · #{selected.number}
               </p>
             </div>
