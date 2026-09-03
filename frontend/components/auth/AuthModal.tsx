@@ -7,7 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Eye, EyeOff, Loader2, Mail, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { authErrorMessage } from "@/lib/authErrors";
-import { getEnabledProviders, getSupabase, isSupabaseConfigured } from "@/lib/supabase";
+import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { toast } from "@/components/ui/Toast";
@@ -37,27 +37,6 @@ async function startGoogleOAuth(nextPath = "/") {
   window.location.assign(data.url);
 }
 
-/** Undefined until the provider list arrives, so nothing flashes on screen. */
-function useGoogleEnabled() {
-  const [enabled, setEnabled] = useState<boolean | undefined>(undefined);
-
-  useEffect(() => {
-    if (!isSupabaseConfigured()) {
-      setEnabled(false);
-      return;
-    }
-    let alive = true;
-    getEnabledProviders()
-      .then((p) => alive && setEnabled(Boolean(p.google)))
-      .catch(() => alive && setEnabled(false));
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  return enabled;
-}
-
 function GoogleButton({
   busy,
   onClick,
@@ -67,8 +46,7 @@ function GoogleButton({
   onClick: () => void;
   label?: string;
 }) {
-  const enabled = useGoogleEnabled();
-  if (!enabled) return null;
+  if (!isSupabaseConfigured()) return null;
 
   return (
     <div className="space-y-1.5">
@@ -97,8 +75,7 @@ function GoogleButton({
 }
 
 function AuthDivider() {
-  const enabled = useGoogleEnabled();
-  if (!enabled) return null;
+  if (!isSupabaseConfigured()) return null;
 
   return (
     <div className="flex items-center gap-3 py-1" aria-hidden>
