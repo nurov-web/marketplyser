@@ -4,14 +4,11 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
+import { motion, useReducedMotion } from "framer-motion";
 import {
-  Cpu,
-  Footprints,
+  CircuitBoard,
   GitCompare,
-  Headphones,
-  Home,
   Kanban,
-  Laptop,
   LayoutDashboard,
   LayoutGrid,
   MessageCircle,
@@ -21,7 +18,10 @@ import {
   ScrollText,
   Shirt,
   Smartphone,
+  Sofa,
   Store,
+  Watch,
+  Laptop,
   type LucideIcon,
 } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
@@ -29,31 +29,43 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
 import type { Category } from "@/types";
 
+function ShoeIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M3.6 15.2c0 .9.7 1.6 1.6 1.6h12.4a2 2 0 0 0 1.94-1.55L21 11.8c.2-.8-.4-1.6-1.25-1.6h-3.55l-1.2-2.85A2.4 2.4 0 0 0 12.7 6H8.4L3.6 12.6v2.6Z" />
+      <path d="M7.2 16.8v1.3M11.2 16.8v1.3M15.2 16.8v1.3" />
+    </svg>
+  );
+}
+
 const ICONS: Record<string, LucideIcon> = {
-  accessories: Headphones,
+  accessories: Watch,
   computers: Monitor,
   clothes: Shirt,
   laptops: Laptop,
-  shoes: Footprints,
   phones: Smartphone,
-  home: Home,
-  electronics: Cpu,
+  home: Sofa,
+  electronics: CircuitBoard,
 };
 
-const COLORS = [
-  "bg-slate-100 text-slate-700",
-  "bg-stone-100 text-stone-700",
-  "bg-zinc-100 text-zinc-700",
-  "bg-neutral-100 text-neutral-700",
-  "bg-slate-100 text-slate-600",
-  "bg-stone-100 text-stone-600",
-  "bg-zinc-100 text-zinc-600",
-  "bg-neutral-100 text-neutral-600",
-];
+function CategoryGlyph({ slug, className }: { slug: string; className?: string }) {
+  if (slug === "shoes") return <ShoeIcon className={className} />;
+  return <Icon icon={ICONS[slug] || LayoutGrid} className={className} aria-hidden />;
+}
 
 export function CategoryBar({ cats }: { cats: Category[] }) {
   const params = useSearchParams();
   const active = params.get("category");
+  const reduce = useReducedMotion();
   const [moreOpen, setMoreOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -82,31 +94,49 @@ export function CategoryBar({ cats }: { cats: Category[] }) {
   return (
     <nav className="relative border-t border-border/70 bg-white" aria-label="Категорияҳо">
       <div className="container-n relative">
-        <div className="no-scrollbar flex gap-2 overflow-x-auto py-2.5 pr-14">
-            {cats.map((c, i) => {
-              const selected = active === c.slug;
-              const Lucide = ICONS[c.slug] || LayoutGrid;
-              return (
-                  <Link
-                    key={c.id}
-                    href={`/search?category=${c.slug}`}
-                    aria-current={selected ? "page" : undefined}
-                    className={`relative flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold ${
-                      selected ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-ink"
+        <motion.div
+          className="no-scrollbar flex gap-1 overflow-x-auto py-2.5 pr-14"
+          initial={reduce ? false : "hidden"}
+          animate="show"
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.045, delayChildren: 0.08 } },
+          }}
+        >
+          {cats.map((c) => {
+            const selected = active === c.slug;
+            return (
+              <motion.div
+                key={c.id}
+                variants={{
+                  hidden: { opacity: 0, x: 18 },
+                  show: {
+                    opacity: 1,
+                    x: 0,
+                    transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+                  },
+                }}
+              >
+                <Link
+                  href={`/search?category=${c.slug}`}
+                  aria-current={selected ? "page" : undefined}
+                  className={`group relative flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${
+                    selected ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-ink"
+                  }`}
+                >
+                  <span className="relative z-10">{c.name}</span>
+                  <span
+                    className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full transition duration-300 group-hover:scale-110 ${
+                      selected ? "bg-white/20 text-white" : "bg-slate-900/5 text-slate-700"
                     }`}
                   >
-                    <span
-                      className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full ${
-                        selected ? "bg-white/20 text-white" : COLORS[i % COLORS.length]
-                      }`}
-                    >
-                      <Icon icon={Lucide} className="h-3.5 w-3.5" aria-hidden />
-                    </span>
-                    <span className="relative z-10">{c.name}</span>
-                  </Link>
-              );
-            })}
-          </div>
+                    <CategoryGlyph slug={c.slug} className="h-4 w-4" />
+                  </span>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </motion.div>
 
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent" />
         <button
@@ -157,7 +187,7 @@ function MoreMenu({
 
   if (!mounted || !open) return null;
 
-  const item = "flex min-h-11 items-center gap-2.5 px-3 text-sm font-medium text-slate-700 hover:bg-primary-50 hover:text-primary";
+  const item = "flex min-h-11 items-center justify-between gap-2.5 px-3 text-sm font-medium text-slate-700 hover:bg-primary-50 hover:text-primary";
   const iconWrap = "flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-600";
 
   return createPortal(
@@ -169,58 +199,57 @@ function MoreMenu({
     >
       {isAdmin && (
         <Link role="menuitem" href="/admin/crm" onClick={onPick} className={`${item} mx-1 rounded-xl bg-primary-50 font-semibold text-primary`}>
+          {t("crm")}
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-white">
             <Icon icon={Kanban} className="h-4 w-4" aria-hidden />
           </span>
-          {t("crm")}
         </Link>
       )}
       {isAdmin && (
         <Link role="menuitem" href="/admin" onClick={onPick} className={item}>
+          {t("adminPanel")}
           <span className={iconWrap}>
             <Icon icon={LayoutDashboard} className="h-4 w-4" aria-hidden />
           </span>
-          {t("adminPanel")}
         </Link>
       )}
       {isSeller && (
         <Link role="menuitem" href="/seller" onClick={onPick} className={item}>
+          {t("sellerPanel")}
           <span className={iconWrap}>
             <Icon icon={Store} className="h-4 w-4" aria-hidden />
           </span>
-          {t("sellerPanel")}
         </Link>
       )}
       <Link role="menuitem" href="/chat" onClick={onPick} className={item}>
+        {t("chat")}
         <span className={iconWrap}>
           <Icon icon={MessageCircle} className="h-4 w-4" aria-hidden />
         </span>
-        {t("chat")}
       </Link>
       <Link role="menuitem" href="/compare" onClick={onPick} className={item}>
+        {t("compare")}
         <span className={iconWrap}>
           <Icon icon={GitCompare} className="h-4 w-4" aria-hidden />
         </span>
-        {t("compare")}
       </Link>
       <Link role="menuitem" href="/orders" onClick={onPick} className={item}>
+        {t("orders")}
         <span className={iconWrap}>
           <Icon icon={Package} className="h-4 w-4" aria-hidden />
         </span>
-        {t("orders")}
       </Link>
       <Link role="menuitem" href="/rules" onClick={onPick} className={item}>
+        {t("rules")}
         <span className={iconWrap}>
           <Icon icon={ScrollText} className="h-4 w-4" aria-hidden />
         </span>
-        {t("rules")}
       </Link>
 
       <p className="mt-1 border-t border-border px-3 pb-1 pt-2.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
         {t("categories")}
       </p>
       {cats.map((c) => {
-        const Lucide = ICONS[c.slug] || LayoutGrid;
         return (
           <Link
             key={c.id}
@@ -229,10 +258,10 @@ function MoreMenu({
             onClick={onPick}
             className={item}
           >
-            <span className={iconWrap}>
-              <Icon icon={Lucide} className="h-3.5 w-3.5" aria-hidden />
-            </span>
             {c.name}
+            <span className={iconWrap}>
+              <CategoryGlyph slug={c.slug} className="h-4 w-4" />
+            </span>
           </Link>
         );
       })}

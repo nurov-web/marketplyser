@@ -3,7 +3,18 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play, Store, Wrench } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+  Play,
+  ShoppingBag,
+  Sparkles,
+  Store,
+  Truck,
+  Wrench,
+} from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Icon } from "@/components/ui/Icon";
 
@@ -16,6 +27,9 @@ type Slide = {
   href: string;
   accent: string;
   glow: string;
+  statTitle: string;
+  statText: string;
+  statIcon: typeof ShoppingBag;
 };
 
 export function HeroSlideshow() {
@@ -34,6 +48,9 @@ export function HeroSlideshow() {
       href: "/search",
       accent: "#0b1f4b",
       glow: "rgba(56,189,248,0.35)",
+      statTitle: t("heroStatTitle"),
+      statText: t("heroStatText"),
+      statIcon: ShoppingBag,
     },
     {
       id: "services",
@@ -44,6 +61,9 @@ export function HeroSlideshow() {
       href: "/services",
       accent: "#0f3d2e",
       glow: "rgba(52,211,153,0.35)",
+      statTitle: t("servicesStatTitle"),
+      statText: t("servicesStatText"),
+      statIcon: Wrench,
     },
     {
       id: "shops",
@@ -54,6 +74,9 @@ export function HeroSlideshow() {
       href: "/shops",
       accent: "#3b1d0f",
       glow: "rgba(251,191,36,0.35)",
+      statTitle: t("shopsStatTitle"),
+      statText: t("shopsStatText"),
+      statIcon: Store,
     },
   ];
 
@@ -71,11 +94,14 @@ export function HeroSlideshow() {
 
   return (
     <section className="container-n mt-6" aria-roledescription="carousel" aria-label="Hero">
-      <div
+      <motion.div
         className="relative overflow-hidden rounded-2xl text-white sm:rounded-[2rem]"
         style={{ backgroundColor: slide.accent }}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
+        initial={reduce ? false : { opacity: 0, y: 28, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       >
         <div
           className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full blur-3xl"
@@ -88,7 +114,7 @@ export function HeroSlideshow() {
           aria-hidden
         />
 
-        <div className="relative min-h-[320px] px-5 py-10 sm:min-h-[380px] sm:px-6 sm:py-14 md:px-14 md:py-16">
+        <div className="relative min-h-[320px] px-5 py-10 pb-20 sm:min-h-[380px] sm:px-6 sm:py-14 sm:pb-20 md:px-14 md:py-16">
           <AnimatePresence mode="wait">
             <motion.div
               key={slide.id}
@@ -119,20 +145,13 @@ export function HeroSlideshow() {
                     </Link>
                   )}
                 </div>
-              </div>
-
-              <div className="hidden justify-end md:flex" aria-hidden>
-                <div className="relative flex h-52 w-52 items-center justify-center rounded-[2rem] bg-white/10 ring-1 ring-white/20 backdrop-blur-md">
-                  <Icon
-                    icon={slide.id === "services" ? Wrench : slide.id === "shops" ? Store : ArrowRight}
-                    className="h-16 w-16 text-white/90"
-                  />
-                  <div className="absolute -left-4 bottom-6 rounded-2xl bg-white px-4 py-3 text-ink shadow-card">
-                    <p className="text-xs font-semibold">{slide.kicker}</p>
-                    <p className="text-[11px] text-slate-500">Nurov</p>
-                  </div>
+                <div className="mt-5 rounded-2xl bg-white px-4 py-3 text-ink shadow-card md:hidden">
+                  <p className="text-xs font-semibold">{slide.statTitle}</p>
+                  <p className="mt-0.5 text-[11px] leading-4 text-slate-500">{slide.statText}</p>
                 </div>
               </div>
+
+              <Storefront slide={slide} reduce={!!reduce} />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -178,7 +197,96 @@ export function HeroSlideshow() {
             <Icon icon={ChevronRight} className="h-4 w-4" />
           </button>
         </div>
-      </div>
+      </motion.div>
     </section>
+  );
+}
+
+function Storefront({ slide, reduce }: { slide: Slide; reduce: boolean }) {
+  return (
+    <div className="hidden justify-end md:flex" aria-hidden>
+      <div className="relative">
+        <motion.div
+          className="absolute -top-3 left-4 right-4 z-10 flex h-3.5 overflow-hidden rounded-t-lg"
+          initial={reduce ? false : { y: -18, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {Array.from({ length: 8 }).map((_, i) => (
+            <span
+              key={i}
+              className={`h-full flex-1 ${i % 2 === 0 ? "bg-white/90" : "bg-primary"}`}
+            />
+          ))}
+        </motion.div>
+
+        <motion.div
+          className="relative flex h-52 w-52 items-center justify-center rounded-[2rem] bg-white/10 ring-1 ring-white/20 backdrop-blur-md"
+          initial={reduce ? false : { scale: 0.82, opacity: 0, rotate: -4 }}
+          animate={{ scale: 1, opacity: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 220, damping: 18, delay: 0.08 }}
+        >
+          <motion.div
+            className="absolute left-4 top-8 h-12 w-10 rounded-lg bg-white/15 ring-1 ring-white/20"
+            animate={
+              reduce
+                ? undefined
+                : { y: [0, -8, 0], transition: { duration: 3.2, repeat: Infinity, ease: "easeInOut" } }
+            }
+          />
+          <motion.div
+            className="absolute right-5 top-12 h-9 w-14 rounded-lg bg-white/12 ring-1 ring-white/15"
+            animate={
+              reduce
+                ? undefined
+                : {
+                    y: [0, 7, 0],
+                    transition: { duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: 0.4 },
+                  }
+            }
+          />
+
+          <motion.div
+            className="relative z-[1] flex h-20 w-20 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/25"
+            animate={
+              reduce
+                ? undefined
+                : { y: [0, -6, 0], transition: { duration: 2.8, repeat: Infinity, ease: "easeInOut" } }
+            }
+          >
+            <Icon icon={slide.statIcon} className="h-10 w-10 text-white" />
+          </motion.div>
+
+          <motion.div
+            className="absolute -right-2 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-ink shadow-card"
+            initial={reduce ? false : { scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 320, damping: 16, delay: 0.45 }}
+          >
+            <Icon icon={Sparkles} className="h-4 w-4" />
+          </motion.div>
+
+          <motion.div
+            className="absolute -left-3 top-20 flex h-8 items-center gap-1.5 rounded-full bg-white px-2.5 text-[10px] font-semibold text-ink shadow-card"
+            initial={reduce ? false : { x: -16, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
+          >
+            <Icon icon={Truck} className="h-3.5 w-3.5 text-primary" />
+            COD
+          </motion.div>
+        </motion.div>
+
+        <motion.div
+          className="absolute -left-4 bottom-6 z-20 min-w-[11.5rem] rounded-2xl bg-white px-4 py-3 text-ink shadow-card"
+          initial={reduce ? false : { y: 18, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.45, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <p className="text-xs font-semibold">{slide.statTitle}</p>
+          <p className="mt-0.5 text-[11px] leading-4 text-slate-500">{slide.statText}</p>
+        </motion.div>
+      </div>
+    </div>
   );
 }
