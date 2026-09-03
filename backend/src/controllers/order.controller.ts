@@ -12,6 +12,8 @@ type Tx = typeof prisma;
 
 export const checkoutSchema = z.object({
   fullName: z.string().trim().min(3, "Номи пурраро нависед"),
+  firstName: z.string().trim().min(2).max(80).optional(),
+  lastName: z.string().trim().min(1).max(80).optional(),
   phone: z.string().trim().min(7, "Рақами телефон нодуруст аст"),
   city: z.string().trim().min(2, "Шаҳрро нависед"),
   address: z.string().trim().min(5, "Суроғаро пурра нависед"),
@@ -19,7 +21,22 @@ export const checkoutSchema = z.object({
   paymentMethod: z.nativeEnum(PaymentMethod).default("COD"),
   saveAddress: z.boolean().optional(),
   couponCode: z.string().optional(),
+  lat: z.coerce.number().optional().nullable(),
+  lng: z.coerce.number().optional().nullable(),
 });
+
+function isTajikGps(lat?: number | null, lng?: number | null) {
+  return (
+    typeof lat === "number" &&
+    typeof lng === "number" &&
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    lat >= 36.4 &&
+    lat <= 41.3 &&
+    lng >= 67.2 &&
+    lng <= 75.3
+  );
+}
 
 export async function placeOrder(req: AuthedRequest, res: Response) {
   const user = await prisma.user.findUnique({ where: { id: req.user!.id } });
@@ -67,8 +84,14 @@ export async function placeOrder(req: AuthedRequest, res: Response) {
   const paymentStatus =
     data.paymentMethod === "COD" ? "PENDING" : "PAID";
 
+  const fullName =
+    data.firstName && data.lastName
+      ? `${data.firstName} ${data.lastName}`.trim()
+      : data.fullName;
   const geo = geocodeCity(data.city);
-  const point = jitter(`${req.user!.id}-${Date.now()}`, geo.lat, geo.lng);
+  const point = isTajikGps(data.lat, data.lng)
+    ? { lat: data.lat as number, lng: data.lng as number }
+    : jitter(`${req.user!.id}-${Date.now()}`, geo.lat, geo.lng);
 
   const order = await prisma.$transaction(async (interactive) => {
     const tx = interactive as Tx;
@@ -78,7 +101,7 @@ export async function placeOrder(req: AuthedRequest, res: Response) {
       data: {
         number: nextNumber,
         userId: req.user!.id,
-        fullName: data.fullName,
+        fullName,
         phone: data.phone,
         city: data.city,
         address: data.address,
@@ -131,7 +154,7 @@ export async function placeOrder(req: AuthedRequest, res: Response) {
       await tx.address.create({
         data: {
           userId: req.user!.id,
-          fullName: data.fullName,
+          fullName,
           phone: data.phone,
           city: data.city,
           address: data.address,
@@ -156,6 +179,26 @@ export async function placeOrder(req: AuthedRequest, res: Response) {
   );
   await notify(req.user!.id, "ORDER_PLACED", "Фармоиш қабул шуд", `Фармоиш #${order.number} сабт шуд.`);
 
+  if (data.deliveryMethod !== "PICKUP") {
+    const couriers = await prisma.user.findMany({
+      where: { role: { in: ["COURIER", "ADMIN"] } },
+      select: { id: true },
+    });
+    await Promise.all(
+      couriers
+        .filter((c) => c.id !== req.user!.id)
+        .map((c) =>
+          notify(
+            c.id,
+            "NEW_LOAD",
+            "Бор нав",
+            `#${order.number} · ${fullName} · ${data.phone}`,
+            { orderId: order.id }
+          )
+        )
+    );
+  }
+
   await prisma.crmDeal.create({
     data: {
       title: `Order #${order.number}`,
@@ -167,7 +210,7 @@ export async function placeOrder(req: AuthedRequest, res: Response) {
   await prisma.crmLead.create({
     data: {
       title: `Order #${order.number}`,
-      name: data.fullName,
+      name: fullName,
       phone: data.phone,
       status: "CONVERTED",
       source: "ORDER",

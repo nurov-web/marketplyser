@@ -62,6 +62,78 @@ const PROVIDERS = [
 ];
 
 export async function ensureServices() {
+  await prisma.$executeRawUnsafe(`
+    DO $$ BEGIN
+      CREATE TYPE "ServiceProviderStatus" AS ENUM ('PENDING', 'ACTIVE', 'BLOCKED');
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END $$;
+  `);
+  await prisma.$executeRawUnsafe(`
+    DO $$ BEGIN
+      CREATE TYPE "ServiceRequestStatus" AS ENUM ('NEW', 'CONFIRMED', 'COMPLETED', 'CANCELLED');
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END $$;
+  `);
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS "ServiceCategory" (
+      "id" TEXT PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "slug" TEXT NOT NULL UNIQUE,
+      "icon" TEXT NOT NULL DEFAULT 'wrench',
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS "ServiceProvider" (
+      "id" TEXT PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "phone" TEXT NOT NULL,
+      "city" TEXT NOT NULL,
+      "categoryId" TEXT NOT NULL,
+      "description" TEXT NOT NULL,
+      "priceFrom" DECIMAL(65,30) NOT NULL DEFAULT 0,
+      "isFeatured" BOOLEAN NOT NULL DEFAULT false,
+      "status" "ServiceProviderStatus" NOT NULL DEFAULT 'PENDING',
+      "sellerId" TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS "ServiceRequest" (
+      "id" TEXT PRIMARY KEY,
+      "providerId" TEXT NOT NULL,
+      "customerName" TEXT NOT NULL,
+      "phone" TEXT NOT NULL,
+      "message" TEXT NOT NULL DEFAULT '',
+      "status" "ServiceRequestStatus" NOT NULL DEFAULT 'NEW',
+      "bitrixLeadId" TEXT,
+      "crmLeadId" TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "ServiceProvider_status_idx" ON "ServiceProvider"("status")`);
+  await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "ServiceProvider_city_idx" ON "ServiceProvider"("city")`);
+  await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "ServiceProvider_categoryId_idx" ON "ServiceProvider"("categoryId")`);
+  await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "ServiceRequest_providerId_idx" ON "ServiceRequest"("providerId")`);
+  await prisma.$executeRawUnsafe(`
+    DO $$ BEGIN
+      ALTER TABLE "ServiceProvider"
+        ADD CONSTRAINT "ServiceProvider_categoryId_fkey"
+        FOREIGN KEY ("categoryId") REFERENCES "ServiceCategory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END $$;
+  `);
+  await prisma.$executeRawUnsafe(`
+    DO $$ BEGIN
+      ALTER TABLE "ServiceRequest"
+        ADD CONSTRAINT "ServiceRequest_providerId_fkey"
+        FOREIGN KEY ("providerId") REFERENCES "ServiceProvider"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END $$;
+  `);
+
   const count = await prisma.serviceCategory.count();
   if (count > 0) return;
 

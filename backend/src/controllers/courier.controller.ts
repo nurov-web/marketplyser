@@ -126,10 +126,19 @@ export async function listLoads(req: AuthedRequest, res: Response) {
   const items = await prisma.order.findMany({
     where: {
       deliveryMethod: { not: "PICKUP" },
-      status: { in: ["CONFIRMED", "PROCESSING", "SHIPPED"] },
+      status: { in: ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED"] },
     },
     include: {
-      items: { include: { product: { include: { images: { take: 1 } } } } },
+      items: {
+        include: {
+          product: {
+            include: {
+              images: { take: 1 },
+              category: { select: { name: true, slug: true } },
+            },
+          },
+        },
+      },
       payment: true,
       user: { select: { firstName: true, lastName: true, phone: true } },
     },
@@ -159,7 +168,12 @@ export async function getLoad(req: AuthedRequest, res: Response) {
       deliveryMethod: { not: "PICKUP" },
     },
     include: {
-      items: { include: { product: { include: { images: { take: 1 } } }, seller: true } },
+      items: {
+        include: {
+          product: { include: { images: { take: 1 }, category: { select: { name: true, slug: true } } } },
+          seller: true,
+        },
+      },
       payment: true,
       user: { select: { firstName: true, lastName: true, phone: true, email: true } },
     },

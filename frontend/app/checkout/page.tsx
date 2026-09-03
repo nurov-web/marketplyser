@@ -13,6 +13,25 @@ import { Icon } from "@/components/ui/Icon";
 import { useI18n } from "@/lib/i18n";
 
 type Addr = { id: string; fullName: string; phone: string; city: string; address: string; isDefault: boolean };
+type GeoStatus = "idle" | "asking" | "ok" | "denied";
+
+function splitName(full: string) {
+  const parts = full.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return { firstName: "", lastName: "" };
+  if (parts.length === 1) return { firstName: parts[0], lastName: "" };
+  return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
+}
+
+function readGps(): Promise<{ lat: number; lng: number } | null> {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) return resolve(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 30_000 }
+    );
+  });
+}
 
 export default function CheckoutPage() {
   const { user, loading } = useAuth();
@@ -25,8 +44,11 @@ export default function CheckoutPage() {
   const [addresses, setAddresses] = useState<Addr[]>([]);
   const [coupon, setCoupon] = useState("");
   const [couponOff, setCouponOff] = useState(0);
+  const [geo, setGeo] = useState<{ lat: number; lng: number } | null>(null);
+  const [geoStatus, setGeoStatus] = useState<GeoStatus>("idle");
   const [form, setForm] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     city: "Душанбе",
     address: "",
@@ -42,10 +64,10 @@ export default function CheckoutPage() {
       open("login", { next: "/checkout" });
       return;
     }
-    const name = `${user.firstName || ""} ${user.lastName || ""}`.trim();
     setForm((f) => ({
       ...f,
-      fullName: f.fullName || name,
+      firstName: f.firstName || user.firstName || "",
+      lastName: f.lastName || user.lastName || "",
       phone: f.phone || (user.phone?.startsWith("g") ? "" : user.phone || ""),
     }));
     api<{ items: Addr[] }>("/api/addresses")
@@ -53,9 +75,11 @@ export default function CheckoutPage() {
         setAddresses(d.items);
         const def = d.items.find((a) => a.isDefault) || d.items[0];
         if (def) {
+          const n = splitName(def.fullName);
           setForm((f) => ({
             ...f,
-            fullName: def.fullName,
+            firstName: n.firstName || f.firstName,
+            lastName: n.lastName || f.lastName,
             phone: def.phone,
             city: def.city,
             address: def.address,
@@ -84,6 +108,19 @@ export default function CheckoutPage() {
     }
   }
 
+  async function askLocation() {
+    if (form.deliveryMethod === "PICKUP") return null;
+    setGeoStatus("asking");
+    const point = await readGps();
+    if (point) {
+      setGeo(point);
+      setGeoStatus("ok");
+      return point;
+    }
+    setGeoStatus("denied");
+    return null;
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) {
@@ -95,8 +132,15 @@ export default function CheckoutPage() {
       setError("Сабад холӣ аст");
       return;
     }
-    if (form.fullName.trim().length < 3) {
-      setError("Номи пурраро нависед");
+    const firstName = form.firstName.trim();
+    const lastName = form.lastName.trim();
+    const fullName = `${firstName} ${lastName}`.trim();
+    if (firstName.length < 2) {
+      setError("Номро нависед");
+      return;
+    }
+    if (lastName.length < 1) {
+      setError("Насабро нависед");
       return;
     }
     if (form.phone.trim().length < 7) {
@@ -110,7 +154,21 @@ export default function CheckoutPage() {
     setError("");
     setBusy(true);
     try {
-      const order = await api<{ id: string }>("/api/orders", { method: "POST", body: JSON.stringify(form) });
+      let point = geo;
+      if (form.deliveryMethod !== "PICKUP" && !point) {
+        point = await askLocation();
+      }
+      const order = await api<{ id: string }>("/api/orders", {
+        method: "POST",
+        body: JSON.stringify({
+          ...form,
+          firstName,
+          lastName,
+          fullName,
+          lat: point?.lat,
+          lng: point?.lng,
+        }),
+      });
       await refresh();
       toast("Фармоиш қабул шуд");
       router.push(`/orders/${order.id}`);
@@ -120,8 +178,9 @@ export default function CheckoutPage() {
     }
   }
 
+  const composedName = `${form.firstName} ${form.lastName}`.trim();
   const selectedAddr = addresses.find(
-    (a) => a.fullName === form.fullName && a.city === form.city && a.address === form.address
+    (a) => a.fullName === composedName && a.city === form.city && a.address === form.address
   );
 
   return (
@@ -148,15 +207,17 @@ export default function CheckoutPage() {
                         className={`min-h-11 w-full rounded-xl border p-3 text-left text-sm motion-safe:transition-opacity motion-safe:duration-200 ${
                           on ? "border-primary bg-primary/5" : "border-border hover:border-primary"
                         }`}
-                        onClick={() =>
+                        onClick={() => {
+                          const n = splitName(a.fullName);
                           setForm((f) => ({
                             ...f,
-                            fullName: a.fullName,
+                            firstName: n.firstName,
+                            lastName: n.lastName,
                             phone: a.phone,
                             city: a.city,
                             address: a.address,
-                          }))
-                        }
+                          }));
+                        }}
                       >
                         {a.fullName} · {a.city}, {a.address}
                       </button>
@@ -166,17 +227,30 @@ export default function CheckoutPage() {
               </fieldset>
             )}
 
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-ink">
-                Номи пурра <span className="text-red-700">*</span>
-              </span>
-              <input
-                required
-                autoComplete="name"
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-              />
-            </label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium text-ink">
+                  {t("firstName")} <span className="text-red-700">*</span>
+                </span>
+                <input
+                  required
+                  autoComplete="given-name"
+                  value={form.firstName}
+                  onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium text-ink">
+                  {t("lastName")} <span className="text-red-700">*</span>
+                </span>
+                <input
+                  required
+                  autoComplete="family-name"
+                  value={form.lastName}
+                  onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                />
+              </label>
+            </div>
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium text-ink">
                 Телефон <span className="text-red-700">*</span>
@@ -225,6 +299,28 @@ export default function CheckoutPage() {
                 <option value="PICKUP">Гирифтан аз дӯкон (0)</option>
               </select>
             </label>
+            {form.deliveryMethod !== "PICKUP" && (
+              <div className="rounded-xl border border-sky-200 bg-sky-50 p-3">
+                <p className="text-sm font-medium text-sky-950">{t("askLocation")}</p>
+                <p className="mt-1 text-xs text-sky-800">
+                  {geoStatus === "ok" && geo
+                    ? `${t("locationOk")} (${geo.lat.toFixed(5)}, ${geo.lng.toFixed(5)})`
+                    : geoStatus === "denied"
+                      ? t("locationSkip")
+                      : t("splash2Text")}
+                </p>
+                <button
+                  type="button"
+                  className="btn-primary mt-3 min-h-11"
+                  disabled={geoStatus === "asking" || geoStatus === "ok"}
+                  onClick={() => {
+                    void askLocation();
+                  }}
+                >
+                  {geoStatus === "asking" ? "..." : geoStatus === "ok" ? t("locationOk") : t("locationAllow")}
+                </button>
+              </div>
+            )}
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium text-ink">Усули пардохт</span>
               <select

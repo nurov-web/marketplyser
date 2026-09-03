@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { MapPinned, Navigation, Package, Phone, UserRound } from "lucide-react";
 import { api, money } from "@/lib/api";
 import { Icon } from "@/components/ui/Icon";
@@ -17,14 +17,26 @@ type Load = MapLoad & {
   deliveryMethod: string;
   payment?: { method: string; status: string };
   user?: { firstName: string; lastName: string; phone: string };
-  items: { id: string; name: string; quantity: number; price: number | string; product?: { images?: { url: string }[] } }[];
+  items: {
+    id: string;
+    name: string;
+    quantity: number;
+    price: number | string;
+    product?: { images?: { url: string }[]; category?: { name: string; slug: string } };
+  }[];
 };
 
-function customerName(load: Load) {
-  if (load.fullName?.trim()) return load.fullName.trim();
+function nameParts(load: Load) {
+  const parts = (load.fullName || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return { first: parts[0], last: parts.slice(1).join(" ") };
+  if (parts.length === 1) return { first: parts[0], last: load.user?.lastName || "" };
   const u = load.user;
-  if (u) return `${u.firstName} ${u.lastName}`.trim();
-  return "—";
+  return { first: u?.firstName || "—", last: u?.lastName || "" };
+}
+
+function customerName(load: Load) {
+  const n = nameParts(load);
+  return `${n.first} ${n.last}`.trim() || "—";
 }
 
 export default function CourierPage() {
@@ -140,6 +152,8 @@ function CourierDesk() {
   const [loads, setLoads] = useState<Load[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const originRef = useRef(origin);
+  originRef.current = origin;
 
   async function load(lat?: number, lng?: number) {
     const q = lat && lng ? `?lat=${lat}&lng=${lng}` : "";
@@ -151,23 +165,33 @@ function CourierDesk() {
 
   useEffect(() => {
     let gone = false;
+    function start(lat?: number, lng?: number) {
+      load(lat, lng).catch(() => {});
+    }
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           if (gone) return;
-          load(pos.coords.latitude, pos.coords.longitude).catch(() => {});
+          start(pos.coords.latitude, pos.coords.longitude);
         },
         () => {
-          if (!gone) load().catch(() => {});
+          if (!gone) start();
         },
         { enableHighAccuracy: true, timeout: 6000 }
       );
     } else {
-      load().catch(() => {});
+      start();
     }
+    const tick = window.setInterval(() => {
+      const o = originRef.current;
+      if (!gone) load(o?.lat, o?.lng).catch(() => {});
+    }, 12000);
     return () => {
       gone = true;
+      window.clearInterval(tick);
     };
+    // origin is updated inside load; interval uses latest via closure after first paint
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const selected = useMemo(() => loads.find((l) => l.id === selectedId) || null, [loads, selectedId]);
@@ -243,6 +267,16 @@ function CourierDesk() {
               <p className="flex items-center gap-2 text-lg font-bold text-ink">
                 <Icon icon={UserRound} className="h-5 w-5 text-slate-400" /> {customerName(selected)}
               </p>
+              <p className="grid grid-cols-2 gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm">
+                <span>
+                  <span className="block text-[11px] text-slate-500">{t("firstName")}</span>
+                  <span className="font-semibold text-ink">{nameParts(selected).first}</span>
+                </span>
+                <span>
+                  <span className="block text-[11px] text-slate-500">{t("lastName")}</span>
+                  <span className="font-semibold text-ink">{nameParts(selected).last || "—"}</span>
+                </span>
+              </p>
               <a className="flex items-center gap-2 font-medium text-primary" href={`tel:${selected.phone}`}>
                 <Icon icon={Phone} className="h-4 w-4" /> {selected.phone}
               </a>
@@ -257,19 +291,34 @@ function CourierDesk() {
               </p>
             </div>
             <ul className="mt-4 space-y-2">
-              {selected.items.map((item) => (
-                <li key={item.id} className="flex items-center gap-3 rounded-xl bg-slate-50 p-2">
-                  {item.product?.images?.[0]?.url ? (
-                    <SafeImg src={item.product.images[0].url} alt="" className="h-10 w-10 rounded-lg object-cover" />
-                  ) : (
-                    <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
-                      <Icon icon={Package} className="h-4 w-4 text-slate-400" />
+              {selected.items.map((item) => {
+                const unit = Number(item.price);
+                const line = unit * item.quantity;
+                const cat = item.product?.category?.name;
+                return (
+                  <li key={item.id} className="flex items-start gap-3 rounded-xl bg-slate-50 p-2">
+                    {item.product?.images?.[0]?.url ? (
+                      <SafeImg src={item.product.images[0].url} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                    ) : (
+                      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
+                        <Icon icon={Package} className="h-4 w-4 text-slate-400" />
+                      </span>
+                    )}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium">{item.name} × {item.quantity}</span>
+                      {cat && (
+                        <span className="mt-0.5 block text-xs text-slate-500">
+                          {t("category")}: {cat}
+                        </span>
+                      )}
+                      <span className="mt-0.5 block text-xs text-slate-500">
+                        {t("orderPrice")}: {money(unit)}
+                      </span>
                     </span>
-                  )}
-                  <span className="min-w-0 flex-1 truncate text-sm">{item.name} × {item.quantity}</span>
-                  <span className="text-sm font-semibold tabular-nums">{money(item.price)}</span>
-                </li>
-              ))}
+                    <span className="text-sm font-semibold tabular-nums">{money(line)}</span>
+                  </li>
+                );
+              })}
             </ul>
             <p className="mt-3 flex justify-between text-sm font-bold">
               <span>{t("checkout")}</span>
