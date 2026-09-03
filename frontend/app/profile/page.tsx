@@ -18,6 +18,7 @@ import {
   ScrollText,
   Shield,
   Store,
+  Truck,
   UserRound,
   X,
 } from "lucide-react";
@@ -142,6 +143,12 @@ export default function ProfilePage() {
                 <Link href="/courier" className="btn-primary text-sm">
                   <Icon icon={MapPin} className="h-4 w-4" aria-hidden />
                   Панели расонидан
+                </Link>
+              )}
+              {(user.role === "USER" || user.role === "SELLER") && (
+                <Link href="/courier" className="btn-ghost text-sm">
+                  <Icon icon={Truck} className="h-4 w-4" aria-hidden />
+                  Доставчик шудан
                 </Link>
               )}
               {user.role === "SELLER" && (

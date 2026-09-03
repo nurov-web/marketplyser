@@ -2,6 +2,7 @@ import { Router } from "express";
 import * as admin from "../controllers/admin.controller";
 import * as cats from "../controllers/category.controller";
 import * as crm from "../controllers/crm.controller";
+import * as courier from "../controllers/courier.controller";
 import { authenticate, requireRole } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { ah } from "../utils/asyncHandler";
@@ -17,6 +18,9 @@ adminRouter.post("/users/:id", ah(admin.adminUserAction));
 adminRouter.get("/sellers", ah(admin.adminSellers));
 adminRouter.get("/sellers/:id", ah(admin.adminSellerDetail));
 adminRouter.post("/sellers/:id", ah(admin.adminSellerAction));
+
+adminRouter.get("/couriers", ah(courier.adminCourierApps));
+adminRouter.post("/couriers/:id", ah(courier.adminCourierAct));
 
 adminRouter.get("/products", ah(admin.adminProducts));
 adminRouter.post("/products/:id", ah(admin.adminProductAction));

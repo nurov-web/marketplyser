@@ -195,7 +195,7 @@ export async function refresh(req: AuthedRequest, res: Response) {
 
 export async function me(req: AuthedRequest, res: Response) {
   res.setHeader("Cache-Control", "private, no-store");
-  if (!req.user) return res.json({ user: null, seller: null });
+  if (!req.user) return res.json({ user: null, seller: null, courierApply: null });
   const user = await prisma.user.findUnique({
     where: { id: req.user.id },
     select: {
@@ -209,11 +209,12 @@ export async function me(req: AuthedRequest, res: Response) {
       accountStatus: true,
       createdAt: true,
       seller: { select: { id: true, shopName: true, status: true, logo: true } },
+      courierApplication: { select: { id: true, status: true, city: true, vehicle: true, rejectReason: true } },
     },
   });
-  if (!user) return res.json({ user: null, seller: null });
-  const { seller, ...rest } = user;
-  return res.json({ user: publicUser(rest), seller });
+  if (!user) return res.json({ user: null, seller: null, courierApply: null });
+  const { seller, courierApplication, ...rest } = user;
+  return res.json({ user: publicUser(rest), seller, courierApply: courierApplication });
 }
 
 export async function updateProfile(req: AuthedRequest, res: Response) {

@@ -246,6 +246,14 @@ function MoreMenu({
           </span>
         </Link>
       )}
+      {(user?.role === "USER" || user?.role === "SELLER") && (
+        <Link role="menuitem" href="/courier" onClick={onPick} className={item}>
+          {t("becomeCourier")}
+          <span className={iconWrap}>
+            <Icon icon={Truck} className="h-4 w-4" aria-hidden />
+          </span>
+        </Link>
+      )}
       <Link role="menuitem" href="/chat" onClick={onPick} className={item}>
         {t("chat")}
         <span className={iconWrap}>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Clock, Package, Plus, ShoppingBag, Store, Users } from "lucide-react";
+import { Clock, Package, Plus, ShoppingBag, Store, Truck, Users } from "lucide-react";
 import { api, money } from "@/lib/api";
 import { Icon } from "@/components/ui/Icon";
 import { AdminCard, AdminPageHeader, StatCard, StatusBadge } from "@/components/admin/ui";
@@ -14,6 +14,7 @@ type Dash = {
   orders: number;
   pendingSellers: number;
   pendingProducts: number;
+  pendingCouriers: number;
   recentOrders: { id: string; number: number; status: string; total: number }[];
 };
 
@@ -26,7 +27,7 @@ export default function AdminHome() {
   if (!d) {
     return (
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length: 7 }).map((_, i) => (
           <div key={i} className="skeleton h-32 rounded-2xl" />
         ))}
       </div>
@@ -57,6 +58,7 @@ export default function AdminHome() {
         <StatCard href="/admin/users" label="Корбарон" value={d.users} icon={Users} tone="bg-blue-50 text-primary" />
         <StatCard href="/admin/sellers" label="Фурӯшандагон" value={d.sellers} icon={Store} tone="bg-sky-50 text-sky-700" />
         <StatCard href="/admin/sellers" label="Seller интизор" value={d.pendingSellers} icon={Clock} tone="bg-orange-50 text-orange-700" />
+        <StatCard href="/admin/couriers" label="Доставчик интизор" value={d.pendingCouriers} icon={Truck} tone="bg-teal-50 text-teal-700" />
         <StatCard href="/admin/products" label="Мол интизор" value={d.pendingProducts} icon={Clock} tone="bg-rose-50 text-rose-700" />
       </div>
 

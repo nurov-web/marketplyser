@@ -121,6 +121,14 @@ export function MoreMenuButton({ className = "" }: { className?: string }) {
                 {t("courierPanel")}
               </Link>
             )}
+            {(user?.role === "USER" || user?.role === "SELLER") && (
+              <Link role="menuitem" href="/courier" onClick={() => setOpen(false)} className={item}>
+                <span className={iconWrap}>
+                  <Icon icon={Truck} className="h-4 w-4" aria-hidden />
+                </span>
+                {t("becomeCourier")}
+              </Link>
+            )}
             <Link role="menuitem" href="/chat" onClick={() => setOpen(false)} className={item}>
               <span className={iconWrap}>
                 <Icon icon={MessageCircle} className="h-4 w-4" aria-hidden />

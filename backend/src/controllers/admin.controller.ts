@@ -8,13 +8,14 @@ import { ilike } from "../lib/search";
 import { removeProductById, invalidateHomeCache } from "./product.controller";
 
 export async function adminDashboard(_req: AuthedRequest, res: Response) {
-  const [users, sellers, products, orders, pendingSellers, pendingProducts] = await Promise.all([
+  const [users, sellers, products, orders, pendingSellers, pendingProducts, pendingCouriers] = await Promise.all([
     prisma.user.count(),
     prisma.seller.count(),
     prisma.product.count(),
     prisma.order.count(),
     prisma.seller.count({ where: { status: "PENDING" } }),
     prisma.product.count({ where: { moderationStatus: "PENDING" } }),
+    prisma.courierApplication.count({ where: { status: "PENDING" } }),
   ]);
   const recentOrders = await prisma.order.findMany({
     take: 8,
@@ -28,6 +29,7 @@ export async function adminDashboard(_req: AuthedRequest, res: Response) {
     orders,
     pendingSellers,
     pendingProducts,
+    pendingCouriers,
     recentOrders,
   });
 }
@@ -64,11 +66,32 @@ export async function adminUserAction(req: AuthedRequest, res: Response) {
   }
 
   if (action === "makeCourier") {
-    await prisma.user.update({ where: { id: user.id }, data: { role: "COURIER" } });
+    await prisma.$transaction([
+      prisma.user.update({ where: { id: user.id }, data: { role: "COURIER" } }),
+      prisma.courierApplication.upsert({
+        where: { userId: user.id },
+        create: {
+          userId: user.id,
+          fullName: `${user.firstName} ${user.lastName}`.trim(),
+          phone: user.phone,
+          city: "Душанбе",
+          vehicle: "Мошин",
+          status: "APPROVED",
+          reviewedAt: new Date(),
+        },
+        update: { status: "APPROVED", reviewedAt: new Date(), rejectReason: null },
+      }),
+    ]);
     return res.json({ ok: true, role: "COURIER" });
   }
   if (action === "makeUser") {
-    await prisma.user.update({ where: { id: user.id }, data: { role: "USER" } });
+    await prisma.$transaction([
+      prisma.user.update({ where: { id: user.id }, data: { role: "USER" } }),
+      prisma.courierApplication.updateMany({
+        where: { userId: user.id, status: "APPROVED" },
+        data: { status: "REJECTED", rejectReason: "Admin нақшро гирифт", reviewedAt: new Date() },
+      }),
+    ]);
     return res.json({ ok: true, role: "USER" });
   }
 

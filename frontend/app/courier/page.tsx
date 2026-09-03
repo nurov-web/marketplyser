@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { MapPinned, Navigation, Package, Phone, UserRound } from "lucide-react";
 import { api, mediaUrl, money } from "@/lib/api";
 import { Icon } from "@/components/ui/Icon";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/hooks/useAuth";
 import { TajikistanMap, type MapLoad } from "@/components/courier/TajikistanMap";
 import { toast } from "@/components/ui/Toast";
 
@@ -19,6 +20,113 @@ type Load = MapLoad & {
 };
 
 export default function CourierPage() {
+  const { user } = useAuth();
+  if (user && user.role !== "COURIER" && user.role !== "ADMIN") {
+    return <CourierApplyGate />;
+  }
+  return <CourierDesk />;
+}
+
+function CourierApplyGate() {
+  const { user, courierApply, refresh } = useAuth();
+  const { t } = useI18n();
+  const [busy, setBusy] = useState(false);
+  const [form, setForm] = useState({
+    fullName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+    phone: user?.phone?.startsWith("g") ? "" : user?.phone || "",
+    city: "Душанбе",
+    vehicle: "Мотоцикл",
+    message: "",
+  });
+
+  useEffect(() => {
+    if (courierApply?.status !== "PENDING") return;
+    const id = window.setInterval(() => {
+      refresh().catch(() => {});
+    }, 8000);
+    return () => window.clearInterval(id);
+  }, [courierApply?.status, refresh]);
+
+  if (courierApply?.status === "PENDING") {
+    return (
+      <div className="mx-auto max-w-lg rounded-3xl border border-border bg-white p-8 text-center shadow-soft">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">{t("courierPending")}</p>
+        <h2 className="mt-2 text-2xl font-bold text-ink">{t("courierApplyTitle")}</h2>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("courierPendingText")}</p>
+      </div>
+    );
+  }
+
+  if (courierApply?.status === "APPROVED") {
+    return (
+      <div className="mx-auto max-w-lg rounded-3xl border border-border bg-white p-8 text-center shadow-soft">
+        <p className="text-sm text-muted-foreground">{t("courierApprovedWait")}</p>
+        <button type="button" className="btn-primary mt-4" onClick={() => refresh()}>
+          {t("courierReload")}
+        </button>
+      </div>
+    );
+  }
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await api("/api/courier/apply", { method: "POST", body: JSON.stringify(form) });
+      toast(t("courierApplySent"));
+      await refresh();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Хато", "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form onSubmit={submit} className="mx-auto max-w-lg space-y-4 rounded-3xl border border-border bg-white p-6 shadow-soft md:p-8">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">{t("courierApplyTitle")}</p>
+        <h2 className="mt-1 text-2xl font-bold text-ink">{t("becomeCourier")}</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("courierApplyText")}</p>
+        {courierApply?.status === "REJECTED" && (
+          <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+            {t("courierRejected")}: {courierApply.rejectReason || t("courierRejected")}
+          </p>
+        )}
+      </div>
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-medium">{t("fullName")}</span>
+        <input required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
+      </label>
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-medium">{t("phone")}</span>
+        <input required type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+      </label>
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-medium">{t("city")}</span>
+        <input required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+      </label>
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-medium">{t("vehicle")}</span>
+        <select value={form.vehicle} onChange={(e) => setForm({ ...form, vehicle: e.target.value })}>
+          <option value="Мотоцикл">Мотоцикл</option>
+          <option value="Мошин">Мошин</option>
+          <option value="Велосипед">Велосипед</option>
+          <option value="Пиёда">Пиёда</option>
+        </select>
+      </label>
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-medium">{t("courierNote")}</span>
+        <textarea rows={3} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
+      </label>
+      <button type="submit" className="btn-primary w-full" disabled={busy}>
+        {busy ? "..." : t("sendApply")}
+      </button>
+    </form>
+  );
+}
+
+function CourierDesk() {
   const { t } = useI18n();
   const [origin, setOrigin] = useState<{ lat: number; lng: number } | null>(null);
   const [loads, setLoads] = useState<Load[]>([]);

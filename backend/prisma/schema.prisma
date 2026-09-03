@@ -114,6 +114,24 @@ model User {
   moderationLogs      ModerationLog[]    @relation("TargetUser")
   issuedPenalties     ModerationLog[]    @relation("AdminActor")
   courierOrders       Order[]            @relation("CourierOrders")
+  courierApplication  CourierApplication?
+}
+
+model CourierApplication {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName     String
+  phone        String
+  city         String
+  vehicle      String
+  message      String    @default("")
+  status       String    @default("PENDING")
+  rejectReason String?
+  createdAt    DateTime  @default(now())
+  reviewedAt   DateTime?
+
+  @@index([status])
 }
 
 model Seller {
