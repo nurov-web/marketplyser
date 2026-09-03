@@ -11,7 +11,7 @@ const CATEGORIES = [
   { name: "Ноутбукҳо", slug: "laptops", image: img("photo-1496181133206-80ce9b88a853"), description: "Ноутбук ва ультрабук" },
   { name: "Компютерҳо", slug: "computers", image: img("photo-1527443224154-c4a3942d3acf"), description: "ПК ва монитор" },
   { name: "Аксессуарҳо", slug: "accessories", image: img("photo-1505740420928-5e560c06d30e"), description: "Гӯшмонак, зарядка, ғилоф" },
-  { name: "Либос", slug: "clothes", image: img("photo-1489987707025-afc232f7ea62"), description: "Либоси мардона ва занона" },
+  { name: "Либос", slug: "clothes", image: img("photo-1483985988355-763728e1935b"), description: "Либоси мардона ва занона" },
   { name: "Пойафзор", slug: "shoes", image: img("photo-1449505278894-297fdb3edbc1"), description: "Кефш ва кроссовка" },
   { name: "Хона", slug: "home", image: img("photo-1556911220-bff31c812dba"), description: "Барои хона ва ошхона" },
   { name: "Электроника", slug: "electronics", image: img("photo-1523275335684-37898b6baf30"), description: "Гаджетҳо ва техника" },
@@ -40,7 +40,7 @@ const PRODUCTS: {
   { name: "Монитори LG 27\" 4K", slug: "lg-monitor-27", description: "4K UHD, IPS, барои дизайн ва бозӣ.", price: 3290, discount: 7, brand: "LG", stock: 9, category: "computers", specs: { Диагонал: "27\"", Resolution: "4K" }, image: img("photo-1527443224154-c4a3942d3acf") },
   { name: "Клавиатураи механикӣ", slug: "mech-keyboard", description: "RGB, свитчҳои қаҳваранг, барои кор ва бозӣ.", price: 390, discount: 0, brand: "Keychron", stock: 28, category: "computers", specs: { Намуд: "Wireless", Layout: "ANSI" }, image: img("photo-1511467687858-23d96c32e4ae") },
   { name: "Мушаки Logitech MX", slug: "logitech-mx", description: "Эргономик, бисёр дастгоҳ, батареяи дароз.", price: 490, discount: 5, brand: "Logitech", stock: 20, category: "computers", specs: { Bluetooth: "Ҳа", DPI: "4000" }, image: img("photo-1527864550417-7fd91fc51a46") },
-  { name: "AirPods Pro 2", slug: "airpods-pro-2", description: "Гӯшмонаки бесим бо noise cancelling.", price: 1990, discount: 0, brand: "Apple", stock: 30, category: "accessories", specs: { Намуд: "In-ear", Bluetooth: "5.3" }, image: img("photo-1600294037681-c81c04de707d") },
+  { name: "AirPods Pro 2", slug: "airpods-pro-2", description: "Гӯшмонаки бесим бо noise cancelling.", price: 1990, discount: 0, brand: "Apple", stock: 30, category: "accessories", specs: { Намуд: "In-ear", Bluetooth: "5.3" }, image: img("photo-1572569511254-d8f925fe2cbb") },
   { name: "Sony WH-1000XM5", slug: "sony-wh-1000xm5", description: "Гӯшмонаки болои гӯш бо беҳтарин ANC.", price: 2890, discount: 12, brand: "Sony", stock: 14, category: "accessories", specs: { ANC: "Ҳа", Вақт: "30 соат" }, image: img("photo-1546435770-a3e426bf472b") },
   { name: "Зарядкаи Anker 65W", slug: "anker-65w", description: "USB-C, зуд заряд, барои ноутбук ва телефон.", price: 290, discount: 0, brand: "Anker", stock: 40, category: "accessories", specs: { Қувва: "65W", Порт: "2x USB-C" }, image: img("photo-1583863788434-e58a36330cf0") },
   { name: "Куртаи пашмин", slug: "wool-coat", description: "Куртаи зимистона, пашми табиӣ.", price: 890, discount: 15, brand: "Nurov", stock: 20, category: "clothes", specs: { Андоза: "M–XL", Мавод: "Wool" }, image: img("photo-1539533018447-63fcce2678e3") },
@@ -49,14 +49,40 @@ const PRODUCTS: {
   { name: "Кроссовка Nike Air", slug: "nike-air", description: "Пойафзори варзишӣ, бароҳат ва сабук.", price: 690, discount: 0, brand: "Nike", stock: 25, category: "shoes", specs: { Андоза: "40–45" }, image: img("photo-1542291026-7eec264c27ff") },
   { name: "Adidas Ultraboost", slug: "adidas-ultraboost", description: "Барои давидан ва рӯзмарра.", price: 790, discount: 8, brand: "Adidas", stock: 16, category: "shoes", specs: { Андоза: "39–44" }, image: img("photo-1608231387042-66d1773070a5") },
   { name: "Ботинкаи чармӣ", slug: "leather-boots", description: "Ботинкаи зимистона, чарми табиӣ.", price: 540, discount: 0, brand: "Nurov", stock: 18, category: "shoes", specs: { Андоза: "40–45", Мавод: "Leather" }, image: img("photo-1520639888713-7851133b1ed0") },
-  { name: "Чойник электрикии сталь", slug: "steel-kettle", description: "1.7л, пӯлоди зангногир, хомӯшшавии автоматӣ.", price: 249, discount: 0, brand: "Bosch", stock: 40, category: "home", specs: { Ҳаҷм: "1.7л", Қувва: "2200W" }, image: img("photo-1571552879083-e0b4d194d1e5") },
+  { name: "Чойник электрикии сталь", slug: "steel-kettle", description: "1.7л, пӯлоди зангногир, хомӯшшавии автоматӣ.", price: 249, discount: 0, brand: "Bosch", stock: 40, category: "home", specs: { Ҳаҷм: "1.7л", Қувва: "2200W" }, image: img("photo-1544787219-7f47ccb76574") },
   { name: "Чангкашаки дастӣ", slug: "handheld-vacuum", description: "Бесим, барои хона ва мошин.", price: 590, discount: 9, brand: "Xiaomi", stock: 15, category: "home", specs: { Намуд: "Cordless", Вақт: "30 дақ" }, image: img("photo-1558317374-067fb5f30001") },
   { name: "Apple Watch Series 9", slug: "apple-watch-9", description: "Соати ҳушманд бо GPS ва батареяи якрӯза.", price: 3490, discount: 0, brand: "Apple", stock: 11, category: "electronics", specs: { Андоза: "45mm", GPS: "Ҳа" }, image: img("photo-1434493789847-2f02dc6ca35d") },
   { name: "iPad Air", slug: "ipad-air", description: "Планшети сабук бо чипи M2 ва Apple Pencil.", price: 5990, discount: 4, brand: "Apple", stock: 8, category: "electronics", specs: { Хотира: "128GB", Экран: "10.9\"" }, image: img("photo-1544244015-0df4b3ffc6b0") },
   { name: "Колонкаи JBL Flip 6", slug: "jbl-flip-6", description: "Баландгӯяки обногузар, овози қавӣ.", price: 890, discount: 6, brand: "JBL", stock: 21, category: "electronics", specs: { Bluetooth: "5.1", IP: "IP67" }, image: img("photo-1608043152269-423dbba4e7e1") },
 ];
 
+const BROKEN_PHOTOS: [string, string][] = [
+  ["photo-1489987707025-afc232f7ea62", "photo-1483985988355-763728e1935b"],
+  ["photo-1600294037681-c81c04de707d", "photo-1572569511254-d8f925fe2cbb"],
+  ["photo-1571552879083-e0b4d194d1e5", "photo-1544787219-7f47ccb76574"],
+];
+
+async function repairBrokenImages() {
+  for (const c of CATEGORIES) {
+    await prisma.category.updateMany({
+      where: { slug: c.slug },
+      data: { image: c.image, name: c.name, description: c.description },
+    });
+  }
+  for (const [from, to] of BROKEN_PHOTOS) {
+    const next = img(to);
+    await prisma.productImage.updateMany({
+      where: { url: { contains: from } },
+      data: { url: next },
+    });
+  }
+  invalidateHomeCache();
+  bustCatCache();
+}
+
 export async function ensureCatalog() {
+  await repairBrokenImages();
+
   const productCount = await prisma.product.count();
   if (productCount >= 25) return;
 

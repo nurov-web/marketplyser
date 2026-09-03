@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
-import { api, mediaUrl, money } from "@/lib/api";
+import { api, money } from "@/lib/api";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/Toast";
 import { Icon } from "@/components/ui/Icon";
+import { SafeImg } from "@/components/ui/SafeImg";
 
 export default function CartPage() {
   const { user, loading } = useAuth();
@@ -52,9 +53,8 @@ export default function CartPage() {
             {items.map((i) => (
               <div key={i.id} className="flex gap-4 rounded-2xl border border-border bg-white p-4 shadow-soft">
                 <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={mediaUrl(i.product.images?.[0]?.url)}
+                  <SafeImg
+                    src={i.product.images?.[0]?.url}
                     alt={i.product.name}
                     className="h-full w-full object-cover"
                   />

@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MapPin, PackageSearch, Store } from "lucide-react";
-import { api, mediaUrl } from "@/lib/api";
+import { api } from "@/lib/api";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Icon } from "@/components/ui/Icon";
+import { SafeImg } from "@/components/ui/SafeImg";
 import type { Product } from "@/types";
 
 type Shop = {
@@ -72,8 +73,7 @@ export default function ShopPage() {
     <div className="container-n py-8">
       <div className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-6 shadow-soft sm:flex-row sm:items-center">
         {seller.logo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={mediaUrl(seller.logo)} alt="" className="h-16 w-16 rounded-2xl object-cover" />
+          <SafeImg src={seller.logo} alt="" className="h-16 w-16 rounded-2xl object-cover" />
         ) : (
           <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <Icon icon={Store} className="h-8 w-8" aria-hidden />

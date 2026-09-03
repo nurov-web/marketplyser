@@ -1,4 +1,5 @@
-export const TJ_BOUNDS = { west: 67.28, east: 75.18, south: 36.64, north: 41.08 };
+/** Wikipedia location-map bounds (Tajikistan rel location map). */
+export const TJ_BOUNDS = { west: 67.1, east: 75.5, south: 36.4, north: 41.3 };
 
 /** Simplified Tajikistan outline (lng, lat). */
 export const TJ_OUTLINE: [number, number][] = [
@@ -54,8 +55,8 @@ export const TJ_CITIES = [
   { name: "Исфара", lat: 40.1265, lng: 70.6253 },
 ];
 
-const W = 800;
-const H = 520;
+const W = 1191;
+const H = 903;
 
 export function project(lng: number, lat: number) {
   const x = ((lng - TJ_BOUNDS.west) / (TJ_BOUNDS.east - TJ_BOUNDS.west)) * W;

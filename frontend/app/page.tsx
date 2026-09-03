@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowRight, ShieldCheck, Sparkles, Truck } from "lucide-react";
-import { getOnce, mediaUrl } from "@/lib/api";
+import { getOnce } from "@/lib/api";
 import { ProductGrid } from "@/components/home/ProductGrid";
 import { FlashDeals } from "@/components/home/FlashDeals";
 import { HeroSlideshow } from "@/components/home/HeroSlideshow";
@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import { FadeIn, Stagger } from "@/components/motion/FadeIn";
 import { useI18n } from "@/lib/i18n";
 import { Icon } from "@/components/ui/Icon";
+import { SafeImg } from "@/components/ui/SafeImg";
 import type { Category, Product } from "@/types";
 
 const RecentlyViewed = dynamic(() => import("@/components/home/RecentlyViewed").then((m) => m.RecentlyViewed));
@@ -73,11 +74,9 @@ export default function HomePage() {
               >
                   <div className="aspect-square overflow-hidden bg-slate-100">
                     {c.image && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={mediaUrl(c.image)}
+                      <SafeImg
+                        src={c.image}
                         alt={c.name}
-                        referrerPolicy="no-referrer"
                         className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.03]"
                         loading="lazy"
                         decoding="async"

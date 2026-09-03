@@ -213,7 +213,7 @@ function Storefront({ slide, reduce }: { slide: Slide; reduce: boolean }) {
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={slide.photo} alt="" className="h-full w-full object-cover" />
+          <img src={slide.photo} alt="" referrerPolicy="no-referrer" className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0b1f4b]/80 via-transparent to-transparent" />
           <p className="absolute bottom-3 left-4 text-[11px] font-medium text-white/80">{slide.photoCredit}</p>
         </motion.div>

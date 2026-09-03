@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { Heart, ShoppingBag, Star } from "lucide-react";
-import { api, mediaUrl, money } from "@/lib/api";
+import { api, money } from "@/lib/api";
 import { toast } from "@/components/ui/Toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useCart } from "@/hooks/useCart";
 import { useI18n } from "@/lib/i18n";
 import { Icon } from "@/components/ui/Icon";
+import { SafeImg } from "@/components/ui/SafeImg";
 import type { Product } from "@/types";
 
 export function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
@@ -46,16 +47,14 @@ export function ProductCard({ product, priority = false }: { product: Product; p
         <Link href={`/product/${product.id}`} className="block">
           <div className="relative aspect-square overflow-hidden bg-slate-100">
             {img && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={mediaUrl(img, "sm")}
+              <SafeImg
+                src={img}
                 alt={product.name}
                 width={320}
                 height={320}
                 loading={priority ? "eager" : "lazy"}
                 fetchPriority={priority ? "high" : "low"}
                 decoding="async"
-                referrerPolicy="no-referrer"
                 className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
               />
             )}

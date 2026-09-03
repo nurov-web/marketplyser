@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { GitCompare, Package, Plus, ShoppingBag, Star, Store, Tag, X } from "lucide-react";
-import { api, mediaUrl, money } from "@/lib/api";
+import { api, money } from "@/lib/api";
 import { getCompareIds, toggleCompare } from "@/lib/compare";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { Icon } from "@/components/ui/Icon";
+import { SafeImg } from "@/components/ui/SafeImg";
 import type { Product } from "@/types";
 
 const MAX = 3;
@@ -152,8 +153,7 @@ export default function ComparePage() {
           {items.map((p) => (
             <article key={p.id} className="card-n mb-3 overflow-hidden p-4">
               <div className="relative aspect-square overflow-hidden rounded-2xl bg-slate-50">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={mediaUrl(p.images[0]?.url, "lg")} alt={p.name} className="h-full w-full object-cover" />
+                <SafeImg src={p.images[0]?.url} alt={p.name} className="h-full w-full object-cover" />
                 {p.discount > 0 && (
                   <span className="absolute left-2 top-2 rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-ink">−{p.discount}%</span>
                 )}

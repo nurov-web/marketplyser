@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MapPin, Store } from "lucide-react";
-import { api, mediaUrl } from "@/lib/api";
+import { api } from "@/lib/api";
 import { Icon } from "@/components/ui/Icon";
+import { SafeImg } from "@/components/ui/SafeImg";
 
 type Shop = { id: string; shopName: string; logo: string | null; description: string; address: string };
 
@@ -55,8 +56,7 @@ export default function ShopsPage() {
             >
               <div className="flex items-center gap-3">
                 {s.logo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={mediaUrl(s.logo)} alt="" className="h-12 w-12 rounded-xl object-cover" />
+                  <SafeImg src={s.logo} alt="" className="h-12 w-12 rounded-xl object-cover" />
                 ) : (
                   <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <Icon icon={Store} className="h-6 w-6" aria-hidden />

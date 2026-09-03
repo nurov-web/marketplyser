@@ -241,7 +241,7 @@ export default function ProductForm({
               title="Нест кардани расм"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={mediaUrl(url)} alt="" className="h-full w-full object-cover" />
+              <img src={mediaUrl(url)} alt="" referrerPolicy="no-referrer" className="h-full w-full object-cover" />
             </button>
           ))}
         </div>

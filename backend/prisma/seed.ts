@@ -85,7 +85,7 @@ async function main() {
       { name: "Ноутбукҳо", slug: "laptops", image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&h=800&q=80", description: "Ноутбук ва ультрабук" },
       { name: "Компютерҳо", slug: "computers", image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=800&h=800&q=80", description: "ПК ва монитор" },
       { name: "Аксессуарҳо", slug: "accessories", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&h=800&q=80", description: "Гӯшмонак, зарядка, ғилоф" },
-      { name: "Либос", slug: "clothes", image: "https://images.unsplash.com/photo-1489987707025-afc232f7ea62?auto=format&fit=crop&w=800&h=800&q=80", description: "Либоси мардона ва занона" },
+      { name: "Либос", slug: "clothes", image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&h=800&q=80", description: "Либоси мардона ва занона" },
       { name: "Пойафзор", slug: "shoes", image: "https://images.unsplash.com/photo-1449505278894-297fdb3edbc1?auto=format&fit=crop&w=800&h=800&q=80", description: "Кефш ва кроссовка" },
       { name: "Хона", slug: "home", image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=800&h=800&q=80", description: "Барои хона ва ошхона" },
       { name: "Электроника", slug: "electronics", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&h=800&q=80", description: "Гаджетҳо ва техника" },
@@ -156,7 +156,7 @@ async function main() {
       stock: 30,
       categoryId: bySlug.accessories,
       specs: { Намуд: "In-ear", Bluetooth: "5.3" },
-      images: ["https://images.unsplash.com/photo-1600294037681-c81c04de707d?w=800"],
+      images: ["https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=800"],
     },
     {
       name: "Sony WH-1000XM5",
@@ -204,7 +204,7 @@ async function main() {
       stock: 40,
       categoryId: bySlug.home,
       specs: { Ҳаҷм: "1.7л", Қувва: "2200W" },
-      images: ["https://images.unsplash.com/photo-1571552879083-e0b4d194d1e5?w=800"],
+      images: ["https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=800"],
     },
     {
       name: "Монитори LG 27\"",

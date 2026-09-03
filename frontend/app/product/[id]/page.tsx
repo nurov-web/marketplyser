@@ -17,7 +17,7 @@ import {
   Star,
   Store,
 } from "lucide-react";
-import { api, mediaUrl, money } from "@/lib/api";
+import { api, money } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useCart } from "@/hooks/useCart";
@@ -26,6 +26,7 @@ import { rememberProduct } from "@/lib/recent";
 import { toggleCompare, inCompare } from "@/lib/compare";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Icon } from "@/components/ui/Icon";
+import { SafeImg } from "@/components/ui/SafeImg";
 import type { Product } from "@/types";
 
 const TABS = [
@@ -166,11 +167,9 @@ export default function ProductPage() {
           <div className="relative overflow-hidden rounded-2xl bg-white shadow-soft">
             <div className="relative aspect-square bg-slate-100">
               {images[active] ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={mediaUrl(images[active].url, "lg")}
+                <SafeImg
+                  src={images[active].url}
                   alt={p.name}
-                  referrerPolicy="no-referrer"
                   className="h-full w-full object-cover motion-safe:transition-opacity motion-safe:duration-200"
                 />
               ) : (
@@ -224,8 +223,7 @@ export default function ProductPage() {
                     i === active ? "ring-2 ring-primary ring-offset-2" : "opacity-80 hover:opacity-100"
                   }`}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={mediaUrl(img.url)} alt="" className="h-full w-full object-cover" />
+                  <SafeImg src={img.url} alt="" className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>

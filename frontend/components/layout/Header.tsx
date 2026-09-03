@@ -7,11 +7,12 @@ import { Suspense, useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useCart } from "@/hooks/useCart";
-import { getOnce, mediaUrl, money, api } from "@/lib/api";
+import { getOnce, money, api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { LangSwitch } from "@/components/layout/LangSwitch";
 import { Logo } from "@/components/brand/Logo";
 import { Icon } from "@/components/ui/Icon";
+import { SafeImg } from "@/components/ui/SafeImg";
 import { CategoryBar } from "@/components/layout/CategoryBar";
 import { MainNav } from "@/components/layout/MainNav";
 import { NavDrawer } from "@/components/layout/NavDrawer";
@@ -156,8 +157,7 @@ export function Header() {
                       onMouseDown={(e) => e.preventDefault()}
                     >
                       {h.image && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={mediaUrl(h.image)} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                        <SafeImg src={h.image} alt="" className="h-10 w-10 rounded-lg object-cover" />
                       )}
                       <span className="flex-1 truncate">{h.name}</span>
                       <span className="tabular-nums text-xs font-semibold">{money(h.finalPrice)}</span>

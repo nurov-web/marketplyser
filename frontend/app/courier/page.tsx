@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { MapPinned, Navigation, Package, Phone, UserRound } from "lucide-react";
-import { api, mediaUrl, money } from "@/lib/api";
+import { api, money } from "@/lib/api";
 import { Icon } from "@/components/ui/Icon";
+import { SafeImg } from "@/components/ui/SafeImg";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { TajikistanMap, type MapLoad } from "@/components/courier/TajikistanMap";
@@ -180,12 +181,12 @@ function CourierDesk() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)]">
-      <section className="overflow-hidden rounded-3xl bg-[#0b1f4b] shadow-lift ring-1 ring-black/10">
-        <div className="flex items-center justify-between px-5 py-3 text-white">
+      <section className="overflow-hidden rounded-3xl bg-[#c9d6b8] shadow-lift ring-1 ring-black/10">
+        <div className="flex items-center justify-between bg-[#1e3a2a] px-5 py-3 text-white">
           <p className="text-sm font-semibold">{t("tajikistanMap")}</p>
-          <p className="text-xs text-blue-100">{t("tapLoad")}</p>
+          <p className="text-xs text-emerald-100">{t("tapLoad")}</p>
         </div>
-        <div className="h-[420px] bg-[#0b1f4b] md:h-[560px]">
+        <div className="h-[420px] md:h-[560px]">
           <TajikistanMap
             loads={loads}
             origin={origin}
@@ -242,8 +243,7 @@ function CourierDesk() {
               {selected.items.map((item) => (
                 <li key={item.id} className="flex items-center gap-3 rounded-xl bg-slate-50 p-2">
                   {item.product?.images?.[0]?.url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={mediaUrl(item.product.images[0].url)} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                    <SafeImg src={item.product.images[0].url} alt="" className="h-10 w-10 rounded-lg object-cover" />
                   ) : (
                     <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
                       <Icon icon={Package} className="h-4 w-4 text-slate-400" />
