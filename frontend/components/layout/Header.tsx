@@ -119,7 +119,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/50 bg-white/70 shadow-glass backdrop-blur-xl backdrop-saturate-150">
+    <header className="sticky top-0 z-40 border-b border-white/60 bg-white/75 shadow-glass backdrop-blur-2xl backdrop-saturate-150">
       <div className="container-n flex h-16 items-center gap-3">
         <button
           type="button"
@@ -144,7 +144,7 @@ export function Header() {
               onFocus={() => hints.length && setOpen(true)}
               onBlur={() => setTimeout(() => setOpen(false), 180)}
               placeholder={t("search")}
-              className="h-11 rounded-full border-0 bg-slate-100/90 pl-11"
+              className="h-11 rounded-full border border-transparent bg-slate-100/90 pl-11 transition focus:border-primary/30 focus:bg-white focus:shadow-[0_8px_24px_-16px_rgba(37,99,235,0.55)]"
               autoComplete="off"
             />
             {open && hints.length > 0 && (

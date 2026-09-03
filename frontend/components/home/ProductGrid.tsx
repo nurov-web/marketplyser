@@ -21,9 +21,12 @@ export function ProductGrid({
   return (
     <section className="container-n mt-block">
       <div className="mb-6 flex items-end justify-between gap-4">
-        <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{title}</h2>
+        <h2 className="section-title">{title}</h2>
         {href && (
-          <Link href={href} className="text-sm font-semibold text-primary hover:text-primary-700">
+          <Link
+            href={href}
+            className="shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold text-primary transition hover:bg-primary-50 hover:text-primary-700"
+          >
             {t("seeAll")}
           </Link>
         )}

@@ -40,21 +40,25 @@ html {
 
 body {
   background:
-    radial-gradient(920px 420px at 8% -12%, rgba(37, 99, 235, 0.1), transparent 55%),
-    radial-gradient(640px 320px at 100% 0%, rgba(245, 158, 11, 0.08), transparent 48%),
+    radial-gradient(1080px 480px at 6% -14%, rgba(37, 99, 235, 0.12), transparent 56%),
+    radial-gradient(720px 360px at 100% -4%, rgba(56, 189, 248, 0.1), transparent 50%),
+    radial-gradient(560px 320px at 88% 100%, rgba(245, 158, 11, 0.07), transparent 46%),
     var(--color-bg);
+  background-attachment: fixed;
   color: var(--color-ink);
-  font-family: "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.6;
+  font-feature-settings: "cv02", "cv03", "cv04";
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4 {
-  font-family: "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
   font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.15;
+  letter-spacing: -0.03em;
+  line-height: 1.14;
   text-wrap: balance;
 }
 
@@ -99,23 +103,65 @@ select {
 }
 
 .btn {
-  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold transition duration-200 hover:brightness-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 ease-out active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.01em;
 }
 
 .btn-primary {
-  @apply btn bg-primary text-white shadow-soft hover:bg-primary-700;
+  @apply btn text-white;
+  background-image: linear-gradient(135deg, #2f6df6 0%, #1d4ed8 100%);
+  box-shadow: 0 10px 24px -14px rgba(29, 78, 216, 0.85);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-image: linear-gradient(135deg, #1d4ed8 0%, #1a3fb0 100%);
+  box-shadow: 0 16px 30px -16px rgba(29, 78, 216, 0.9);
+  transform: translateY(-1px);
 }
 
 .btn-gold, .btn-accent {
-  @apply btn bg-primary text-white shadow-soft hover:bg-primary-700;
+  @apply btn text-ink;
+  background-image: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 10px 24px -14px rgba(217, 119, 6, 0.8);
+}
+
+.btn-gold:hover:not(:disabled), .btn-accent:hover:not(:disabled) {
+  background-image: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 16px 30px -16px rgba(217, 119, 6, 0.85);
+  transform: translateY(-1px);
 }
 
 .btn-ghost {
-  @apply btn border border-border bg-white text-ink hover:bg-slate-50;
+  @apply btn border border-border bg-white text-ink hover:border-primary/40 hover:bg-primary-50;
 }
 
 .card-n {
   @apply rounded-2xl border border-border/70 bg-white shadow-soft;
+}
+
+/* Section heading with a brand accent rule. */
+.section-title {
+  @apply relative text-2xl font-bold tracking-tight md:text-3xl;
+}
+
+.section-title::after {
+  content: "";
+  @apply mt-3 block h-1 w-12 rounded-full;
+  background-image: linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
+}
+
+.surface-card {
+  @apply rounded-2xl bg-white ring-1 ring-slate-900/[0.06];
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px -22px rgba(15, 23, 42, 0.28);
+  transition: box-shadow 0.28s var(--ease-out), transform 0.28s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .surface-card:hover {
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05), 0 26px 48px -26px rgba(37, 99, 235, 0.42);
+    transform: translateY(-3px);
+  }
 }
 
 .skeleton {

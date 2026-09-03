@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Inter, Manrope } from "next/font/google";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AuthModalProvider } from "@/hooks/useAuthModal";
 import { CartProvider } from "@/hooks/useCart";
@@ -14,6 +15,20 @@ import { PageTransition } from "@/components/motion/PageTransition";
 import { WelcomeSplash } from "@/components/home/WelcomeSplash";
 import { Suspense } from "react";
 
+const display = Manrope({
+  subsets: ["latin", "cyrillic"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const body = Inter({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+  display: "swap",
+});
+
 export const metadata = {
   title: "Nurov Marketplace",
   description: "Trusted marketplace for buyers and sellers",
@@ -28,7 +43,7 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tg">
+    <html lang="tg" className={`${display.variable} ${body.variable}`}>
       <body className="min-h-dvh pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0">
         <LanguageProvider>
           <AuthProvider>
