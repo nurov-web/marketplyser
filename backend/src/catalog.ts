@@ -14,7 +14,7 @@ const CATEGORIES = [
   { name: "Либос", slug: "clothes", image: img("photo-1483985988355-763728e1935b"), description: "Либоси мардона ва занона" },
   { name: "Пойафзор", slug: "shoes", image: img("photo-1449505278894-297fdb3edbc1"), description: "Кефш ва кроссовка" },
   { name: "Хона", slug: "home", image: img("photo-1556911220-bff31c812dba"), description: "Барои хона ва ошхона" },
-  { name: "Электроника", slug: "electronics", image: img("photo-1523275335684-37898b6baf30"), description: "Гаджетҳо ва техника" },
+  { name: "Электроника", slug: "electronics", image: img("photo-1498049794561-7780e7231661"), description: "Гаджетҳо ва техника" },
 ];
 
 const PRODUCTS: {
@@ -60,6 +60,7 @@ const BROKEN_PHOTOS: [string, string][] = [
   ["photo-1489987707025-afc232f7ea62", "photo-1483985988355-763728e1935b"],
   ["photo-1600294037681-c81c04de707d", "photo-1572569511254-d8f925fe2cbb"],
   ["photo-1571552879083-e0b4d194d1e5", "photo-1544787219-7f47ccb76574"],
+  ["photo-1523275335684-37898b6baf30", "photo-1498049794561-7780e7231661"],
 ];
 
 async function repairBrokenImages() {

@@ -28,7 +28,7 @@ import {
 import { Icon } from "@/components/ui/Icon";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
-import { SafeImg } from "@/components/ui/SafeImg";
+import { mediaUrl } from "@/lib/api";
 import type { Category } from "@/types";
 
 function ShoeIcon({ className }: { className?: string }) {
@@ -65,12 +65,16 @@ function CategoryGlyph({ slug, className }: { slug: string; className?: string }
 }
 
 function CategoryThumb({ cat, selected }: { cat: Category; selected?: boolean }) {
-  if (cat.image) {
+  const [broken, setBroken] = useState(false);
+  if (cat.image && !broken) {
     return (
-      <SafeImg
-        src={cat.image}
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={mediaUrl(cat.image)}
         alt=""
-        className={`h-8 w-8 rounded-full object-cover ring-1 ${selected ? "ring-white/40" : "ring-black/10"}`}
+        referrerPolicy="no-referrer"
+        onError={() => setBroken(true)}
+        className={`h-8 w-8 rounded-full object-cover bg-slate-200 ring-1 ${selected ? "ring-white/40" : "ring-black/10"}`}
       />
     );
   }

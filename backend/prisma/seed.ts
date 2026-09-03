@@ -88,7 +88,7 @@ async function main() {
       { name: "Либос", slug: "clothes", image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&h=800&q=80", description: "Либоси мардона ва занона" },
       { name: "Пойафзор", slug: "shoes", image: "https://images.unsplash.com/photo-1449505278894-297fdb3edbc1?auto=format&fit=crop&w=800&h=800&q=80", description: "Кефш ва кроссовка" },
       { name: "Хона", slug: "home", image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=800&h=800&q=80", description: "Барои хона ва ошхона" },
-      { name: "Электроника", slug: "electronics", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&h=800&q=80", description: "Гаджетҳо ва техника" },
+      { name: "Электроника", slug: "electronics", image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=800&h=800&q=80", description: "Гаджетҳо ва техника" },
     ].map((c) => prisma.category.create({ data: c }))
   );
 
