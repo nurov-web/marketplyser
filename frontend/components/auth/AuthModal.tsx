@@ -7,7 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Eye, EyeOff, Loader2, Mail, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { authErrorMessage } from "@/lib/authErrors";
-import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
+import { getEnabledProviders, getSupabase, isSupabaseConfigured } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { toast } from "@/components/ui/Toast";
@@ -17,6 +17,19 @@ const RESEND_COOLDOWN_SEC = 60;
 const OTP_LENGTH = 6;
 
 async function startGoogleOAuth(nextPath = "/") {
+  if (!isSupabaseConfigured()) {
+    throw new Error("Пайваст ба Google ҳанӯз омода нест.");
+  }
+
+  // Агар провайдер хомӯш бошад, authorize саҳифаи сафед (400) медиҳад —
+  // пеш аз redirect санҷем, то корбар дар саҳифаи холӣ намонад.
+  const providers = await getEnabledProviders({ fresh: true });
+  if (!providers.google) {
+    throw new Error(
+      "Воридшавӣ бо Google ҳоло фаъол нест. Бо email/телефон ворид шавед, ё Google-ро дар Supabase фаъол кунед."
+    );
+  }
+
   try {
     sessionStorage.setItem("auth_next", nextPath || "/");
   } catch {
@@ -33,7 +46,6 @@ async function startGoogleOAuth(nextPath = "/") {
   });
   if (error) throw error;
   if (!data.url) throw new Error("Линки Google гирифта нашуд.");
-  // Фавран ба Google → баъд худкор ба /auth/callback → воридшавӣ
   window.location.assign(data.url);
 }
 

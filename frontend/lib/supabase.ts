@@ -43,7 +43,8 @@ export function getSupabase(): SupabaseClient {
 let providersPromise: Promise<Record<string, boolean>> | null = null;
 
 /** Which social providers the Supabase project actually has switched on. */
-export function getEnabledProviders(): Promise<Record<string, boolean>> {
+export function getEnabledProviders(opts?: { fresh?: boolean }): Promise<Record<string, boolean>> {
+  if (opts?.fresh) providersPromise = null;
   if (providersPromise) return providersPromise;
   providersPromise = fetch(`${supabaseUrl()}/auth/v1/settings`, {
     headers: { apikey: supabaseAnonKey() },
