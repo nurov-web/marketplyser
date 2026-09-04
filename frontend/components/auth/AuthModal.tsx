@@ -58,7 +58,25 @@ function GoogleButton({
   onClick: () => void;
   label?: string;
 }) {
-  if (!isSupabaseConfigured()) return null;
+  const [show, setShow] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured()) {
+      setShow(false);
+      return;
+    }
+    let alive = true;
+    getEnabledProviders({ fresh: true })
+      .then((p) => alive && setShow(Boolean(p.google)))
+      .catch(() => alive && setShow(false));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // То маълум шудан ё агар Google хомӯш бошад — тугмаро нишон намедиҳем
+  // (вагарна саҳифаи сафед / хато медиҳад).
+  if (!show) return null;
 
   return (
     <div className="space-y-1.5">
@@ -87,7 +105,20 @@ function GoogleButton({
 }
 
 function AuthDivider() {
-  if (!isSupabaseConfigured()) return null;
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+    let alive = true;
+    getEnabledProviders()
+      .then((p) => alive && setShow(Boolean(p.google)))
+      .catch(() => alive && setShow(false));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  if (!show) return null;
 
   return (
     <div className="flex items-center gap-3 py-1" aria-hidden>
